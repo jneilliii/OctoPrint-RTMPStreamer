@@ -1,0 +1,27 @@
+<h4>RTMP Streamer Settings</h4>
+<form class="form-horizontal">
+    <div class="control-group">
+        <label class="control-label">{{ _('Resolution') }}</label>
+        <div class="controls">
+            <input type="text" class="input-block-level" data-bind="value: settings.plugins.rtmpstreamer.stream_resolution" placeholder="Resolution to stream at.">
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">{{ _('View URL') }}</label>
+        <div class="controls">
+            <input type="text" class="input-block-level" data-bind="value: settings.plugins.rtmpstreamer.view_url" placeholder="Enter url to watch stream from.">
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">{{ _('RTMP Stream URL') }}</label>
+        <div class="controls">
+            <input type="text" class="input-block-level" data-bind="value: settings.plugins.rtmpstreamer.stream_url" placeholder="Enter url to post stream to.">
+        </div>
+    </div>
+    <div class="control-group" data-bind="visible: settings.plugins.rtmpstreamer.stream_url().length > 0">
+        <label class="control-label">{{ _('Stream While Printing') }}</label>
+        <div class="controls">
+            <input class="input-checkbox" type="checkbox" data-bind="checked: settings.plugins.rtmpstreamer.auto_start"></input>
+        </div>
+    </div>
+</form>
