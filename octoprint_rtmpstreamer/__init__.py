@@ -48,7 +48,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 		
 	##~~ SettingsPlugin
 	def get_settings_defaults(self):
-		return dict(view_url="",stream_url="",stream_resolution="640x480",streaming=False,auto_start=False)
+		return dict(view_url="",stream_url="",stream_resolution="640x480",stream_framerate="5",streaming=False,auto_start=False)
 		
 	##~~ SimpleApiPlugin	
 	def get_api_commands(self):
@@ -86,7 +86,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 			if len(filters) == 0:
 				filters.append("null")
 			try:
-				self.container = self.client.containers.run("octoprint/rtmpstreamer:latest",command=[self._settings.global_get(["webcam","stream"]),self._settings.get(["stream_resolution"]),self._settings.get(["stream_url"]),",".join(filters)],detach=True,privileged=True,name="RTMPStreamer",auto_remove=True)
+				self.container = self.client.containers.run("octoprint/rtmpstreamer:latest",command=[self._settings.global_get(["webcam","stream"]),self._settings.get(["stream_resolution"]),self._settings.get(["stream_framerate"]),self._settings.get(["stream_url"]),",".join(filters)],detach=True,privileged=True,name="RTMPStreamer",auto_remove=True)
 				self._plugin_manager.send_plugin_message(self._identifier, dict(status=True,streaming=True))
 			except Exception, e:
 				self._plugin_manager.send_plugin_message(self._identifier, dict(error=str(e),status=True,streaming=False))	

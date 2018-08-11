@@ -13,9 +13,9 @@
 	
 **Test**
 
-Run the following command replacing `<ip>`, `<stream_url>` and `<stream_resolution>` with appropriate values. For the resolution setting use the format equivalent to 640x480.
+Run the following command replacing `<ip>`, `<stream url>`, `<stream resolution>` and `<stream framerate>` with appropriate values. For the resolution setting use the format equivalent to 640x480.
 
-    docker run --privileged --name RTMPStreamer -ti octoprint/rtmpstreamer:latest http://<ip>/webcam/?action=stream <stream_resolution> <stream_url> null 
+    docker run --privileged --name RTMPStreamer -ti octoprint/rtmpstreamer:latest http://<ip>/webcam/?action=stream <stream resolution> <stream framerate> <stream url> null 
 
 Stream should go live and re-encode the OctoPrint stream to provided url.  Once verified close ffmpeg and remove docker container.
 	
