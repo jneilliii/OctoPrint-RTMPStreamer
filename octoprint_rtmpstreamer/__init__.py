@@ -75,6 +75,10 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 				
 	##~~ General Functions
 	def startStream(self):
+		if self._settings.global_get(["webcam","stream"]).startswith("/"):
+			self._plugin_manager.send_plugin_message(self._identifier, dict(error="Webcam stream url is incorrect.  Please configure OctoPrint's Webcam & Timelapse url to include fullly qualified url, like http://192.168.0.2/webcam/?action=stream",status=True,streaming=False))
+			return
+
 		if not self.container:
 			filters = []
 			if self._settings.global_get(["webcam","flipH"]):
@@ -86,7 +90,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 			if len(filters) == 0:
 				filters.append("null")
 			try:
-				self.container = self.client.containers.run("octoprint/rtmpstreamer:latest",command=[self._settings.global_get(["webcam","stream"]),self._settings.get(["stream_resolution"]),self._settings.get(["stream_framerate"]),self._settings.get(["stream_url"]),",".join(filters)],detach=True,privileged=True,name="RTMPStreamer",auto_remove=True)
+				self.container = self.client.containers.run("octoprint/rtmpstreamer:latest",command=[self._settings.global_get(["webcam","stream"]),self._settings.get(["stream_resolution"]),self._settings.get(["stream_framerate"]),self._settings.get(["stream_url"]),",".join(filters)],detach=True,privileged=True,name="RTMPStreamer",auto_remove=True,network_mode="host")
 				self._plugin_manager.send_plugin_message(self._identifier, dict(status=True,streaming=True))
 			except Exception, e:
 				self._plugin_manager.send_plugin_message(self._identifier, dict(error=str(e),status=True,streaming=False))	
