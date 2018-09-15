@@ -19,8 +19,13 @@ Once the prerequisites are met and the test command is successfull enter the res
 
 <img src="https://raw.githubusercontent.com/jneilliii/Octoprint-RTMPStreamer/master/settings_screenshot.jpg">
 
+Don't forget to change your webcam stream url to a fully qualified url using the ip address of your pi like
+
+http://192.168.1.101/webcam/?action=stream instead of /webcam/?action=stream
+
 ## TODO:
 * [ ] Additional testing.
+* [ ] Proper error messaging for debugging (e.g. no fully qualified url provided)
 
 ## Support My Efforts
 I programmed this plugin for fun and do my best effort to support those that have issues with it, please return the favor and support me.
