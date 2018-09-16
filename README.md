@@ -25,7 +25,7 @@ http://192.168.1.101/webcam/?action=stream instead of /webcam/?action=stream
 
 ## TODO:
 * [ ] Additional testing.
-* [ ] Proper error messaging for debugging (e.g. no fully qualified url provided)
+* [X] Proper error messaging for debugging (e.g. no fully qualified url provided)
 
 ## Support My Efforts
 I programmed this plugin for fun and do my best effort to support those that have issues with it, please return the favor and support me.
