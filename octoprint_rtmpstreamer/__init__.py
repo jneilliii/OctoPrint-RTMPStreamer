@@ -26,6 +26,10 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 		except Exception, e:
 			self._logger.error(str(e))
 			self._plugin_manager.send_plugin_message(self._identifier, dict(status=True,streaming=False))
+			
+		if self._settings.get(["auto_start_on_power_up"]) and self._settings.get(["stream_url"]) != "":
+			self._logger.info("Auto starting stream on start up.")
+			self.startStream()
 	
 	##~~ TemplatePlugin
 	def get_template_configs(self):
@@ -48,7 +52,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 		
 	##~~ SettingsPlugin
 	def get_settings_defaults(self):
-		return dict(view_url="",stream_url="",stream_resolution="640x480",stream_framerate="5",streaming=False,auto_start=False)
+		return dict(view_url="",stream_url="",stream_resolution="640x480",stream_framerate="5",streaming=False,auto_start=False,auto_start_on_power_up=False)
 		
 	##~~ SimpleApiPlugin	
 	def get_api_commands(self):
