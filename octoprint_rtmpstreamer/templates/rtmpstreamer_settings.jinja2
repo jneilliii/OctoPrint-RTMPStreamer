@@ -30,4 +30,10 @@
             <input class="input-checkbox" type="checkbox" data-bind="checked: settings.plugins.rtmpstreamer.auto_start"></input>
         </div>
     </div>
+    <div class="control-group" data-bind="visible: settings.plugins.rtmpstreamer.stream_url().length > 0">
+        <label class="control-label">{{ _('Stream On Startup') }}</label>
+        <div class="controls">
+            <input class="input-checkbox" type="checkbox" data-bind="checked: settings.plugins.rtmpstreamer.auto_start_on_power_up"></input>
+        </div>
+    </div>
 </form>
