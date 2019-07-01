@@ -94,7 +94,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 			if len(filters) == 0:
 				filters.append("null")
 			try:
-				self.container = self.client.containers.run("octoprint/rtmpstreamer:latest",command=[self._settings.global_get(["webcam","stream"]),self._settings.get(["stream_resolution"]),self._settings.get(["stream_framerate"]),self._settings.get(["stream_url"]),",".join(filters)],detach=True,privileged=True,name="RTMPStreamer",auto_remove=True,network_mode="host")
+				self.container = self.client.containers.run("octoprint/rtmpstreamer:latest",command=[self._settings.global_get(["webcam","stream"]),self._settings.get(["stream_resolution"]),self._settings.get(["stream_framerate"]),self._settings.get(["stream_url"]),",".join(filters)],detach=True,privileged=False,devices=["/dev/vchiq"],name="RTMPStreamer",auto_remove=True,network_mode="host")
 				self._plugin_manager.send_plugin_message(self._identifier, dict(status=True,streaming=True))
 			except Exception, e:
 				self._plugin_manager.send_plugin_message(self._identifier, dict(error=str(e),status=True,streaming=False))	
