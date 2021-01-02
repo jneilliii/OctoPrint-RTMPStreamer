@@ -121,6 +121,16 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 				user="jneilliii",
 				repo="OctoPrint-RTMPStreamer",
 				current=self._plugin_version,
+				stable_branch=dict(
+					name="Stable", branch="master", comittish=["master"]
+				),
+				prerelease_branches=[
+					dict(
+						name="Release Candidate",
+						branch="rc",
+						comittish=["rc", "master"],
+					)
+				],
 
 				# update method: pip
 				pip="https://github.com/jneilliii/OctoPrint-RTMPStreamer/archive/{target_version}.zip"
@@ -128,6 +138,8 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 		)
 
 __plugin_name__ = "RTMP Streamer"
+__plugin_pythoncompat__ = ">=2.7,<4"
+
 
 def __plugin_load__():
 	global __plugin_implementation__
