@@ -23,7 +23,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 			self.container = self.client.containers.get('RTMPStreamer')
 			self._logger.info("%s is streaming " % self.container.name)
 			self._plugin_manager.send_plugin_message(self._identifier, dict(status=True,streaming=True))
-		except Exception, e:
+		except Exception as e:
 			self._logger.error(str(e))
 			self._plugin_manager.send_plugin_message(self._identifier, dict(status=True,streaming=False))
 			
@@ -96,7 +96,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 			try:
 				self.container = self.client.containers.run("octoprint/rtmpstreamer:latest",command=[self._settings.global_get(["webcam","stream"]),self._settings.get(["stream_resolution"]),self._settings.get(["stream_framerate"]),self._settings.get(["stream_url"]),",".join(filters)],detach=True,privileged=False,devices=["/dev/vchiq"],name="RTMPStreamer",auto_remove=True,network_mode="host")
 				self._plugin_manager.send_plugin_message(self._identifier, dict(status=True,streaming=True))
-			except Exception, e:
+			except Exception as e:
 				self._plugin_manager.send_plugin_message(self._identifier, dict(error=str(e),status=True,streaming=False))	
 				
 	def stopStream(self):
@@ -105,7 +105,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 				self.container.stop()
 				self.container = None
 				self._plugin_manager.send_plugin_message(self._identifier, dict(status=True,streaming=False))
-			except Exception, e:
+			except Exception as e:
 				self._plugin_manager.send_plugin_message(self._identifier, dict(error=str(e),status=True,streaming=False))
 		else:
 			self._plugin_manager.send_plugin_message(self._identifier, dict(status=True,streaming=False))
