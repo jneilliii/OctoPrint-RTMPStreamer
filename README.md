@@ -1,6 +1,8 @@
 # OctoPrint-RTMPStreamer
 **Overview:** Plugin that adds a tab to OctoPrint for viewing, starting, and stopping a re-encoded stream to any RTMP server.
 
+**Warning:** Recent updates to Twitch's embed protocol has made the viewer enabled on the tab unusable. I'm looking into a solution but initial research indicates this may only be possible with a fully qualified domain name.
+
 **Details:** Based on the work found [here](https://blog.alexellis.io/live-stream-with-docker/).
 
 **Notes:** 
@@ -24,7 +26,7 @@ Don't forget to change your webcam stream url to a fully qualified url using the
 http://192.168.1.101/webcam/?action=stream instead of /webcam/?action=stream
 
 ## TODO:
-* [ ] Additional testing.
+* [X] Additional testing.
 * [X] Proper error messaging for debugging (e.g. no fully qualified url provided)
 
 ## Get Help
