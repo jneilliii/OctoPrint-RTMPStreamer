@@ -1,39 +1,231 @@
-<h4>RTMP Streamer Settings</h4>
+<h3>RTMP Streamer Settings</h3>
 <form class="form-horizontal">
-    <div class="control-group">
-        <label class="control-label">{{ _('View URL') }}</label>
-        <div class="controls">
-            <input type="text" class="input-block-level" data-bind="value: settings.plugins.rtmpstreamer.view_url" placeholder="Enter url to watch stream from.">
-        </div>
-    </div>
+    <h4>Streamer Settings</h4>
     <div class="control-group">
         <label class="control-label">{{ _('RTMP Stream URL') }}</label>
         <div class="controls">
             <input type="text" class="input-block-level" data-bind="value: settings.plugins.rtmpstreamer.stream_url" placeholder="Enter url to post stream to.">
         </div>
     </div>
-    <div class="control-group" data-bind="visible: settings.plugins.rtmpstreamer.stream_url().length > 0">
+    <div class="stream_additional">
+        <div><small><a href="#" class="muted" data-bind="toggleContent: { class: 'fa-caret-right fa-caret-down', parent: '.stream_additional', container: '.hide' }"><i class="fa fa-caret-right"></i> Additional Information</a></small></div>
+        <div class="hide">
+            <table class="table table-striped table-condensed table-fit">
+                <caption>More on "Stream Server URL"</caption>
+                <thead>
+                <tr>
+                    <th>Service</th>
+                    <th>Link to information</th>
+                    <th>Example URL</th>
+                </tr>
+                </thead>
+                <tr>
+                    <td>YouTube Live</td>
+                    <td><a href="https://www.youtube.com/live_dashboard" target="_blank" rel="noopener">Live Streaming Dashboard</a></td>
+                    <td>rtmp://a.rtmp.youtube.com/live2/xxxx-xxxx-xxxx-xxxx</td>
+                </tr>
+                <tr>
+                    <td>Twitch</td>
+                    <td><a href="https://www.twitch.tv/dashboard/settings" target="_blank" rel="noopener">Channel Dashboard</a></td>
+                    <td>rtmp://live.twitch.tv/app/live_xxxxxxxxx_xxxxxxxxxx</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="control-group">
         <label class="control-label">{{ _('Stream Resolution') }}</label>
         <div class="controls">
             <input type="text" class="input-block-level" data-bind="value: settings.plugins.rtmpstreamer.stream_resolution" placeholder="Resolution to stream at.">
         </div>
     </div>
-    <div class="control-group" data-bind="visible: settings.plugins.rtmpstreamer.stream_url().length > 0">
+    <div class="control-group">
         <label class="control-label">{{ _('Stream Framerate') }}</label>
         <div class="controls">
             <input type="text" class="input-block-level" data-bind="value: settings.plugins.rtmpstreamer.stream_framerate" placeholder="Enter framerate for stream.">
         </div>
     </div>
-    <div class="control-group" data-bind="visible: settings.plugins.rtmpstreamer.stream_url().length > 0">
+    <div class="control-group">
         <label class="control-label">{{ _('Stream While Printing') }}</label>
         <div class="controls">
             <input class="input-checkbox" type="checkbox" data-bind="checked: settings.plugins.rtmpstreamer.auto_start"></input>
         </div>
     </div>
-    <div class="control-group" data-bind="visible: settings.plugins.rtmpstreamer.stream_url().length > 0">
+    <div class="control-group">
         <label class="control-label">{{ _('Stream On Startup') }}</label>
         <div class="controls">
             <input class="input-checkbox" type="checkbox" data-bind="checked: settings.plugins.rtmpstreamer.auto_start_on_power_up"></input>
         </div>
     </div>
 </form>
+<div data-bind="visible: settings.plugins.rtmpstreamer.stream_url().length > 0">
+<form class="form-horizontal">
+    <h4>Viewer Settings</h4>
+    <div class="control-group">
+        <label class="control-label">{{ _('View URL') }}</label>
+        <div class="controls">
+            <input type="text" class="input-block-level" data-bind="value: settings.plugins.rtmpstreamer.view_url" placeholder="Enter url to watch stream from.">
+        </div>
+    </div>
+    <div class="viewer_additional">
+        <div><small><a href="#" class="muted" data-bind="toggleContent: { class: 'fa-caret-right fa-caret-down', parent: '.viewer_additional', container: '.hide' }"><i class="fa fa-caret-right"></i> Additional Information</a></small></div>
+        <div class="hide">
+            <table class="table table-striped table-condensed table-fit">
+                <caption>More on "Viewer Embed URL"</caption>
+                <thead>
+                <tr>
+                    <th>Service</th>
+                    <th>Example URL</th>
+                    <th>Note</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>YouTube Live</td>
+                    <td>https://www.youtube.com/embed/live_stream?channel=CHANNEL_ID</td>
+                    <td><a href="http://www.youtube.com/account_advanced" target="_blank" rel="noopener">Advanced Account Settings</a></td>
+                </tr>
+                <tr>
+                    <td>Twitch</td>
+                    <td>https://player.twitch.tv/?channel=USERNAME&parent=FQDN&autoplay=false&muted=true</td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</form>
+<form class="form-horizontal">
+    <h4>Docker Settings</h4>
+    <div class="control-group" title="Use docker">
+        <div class="controls">
+            <label class="checkbox">
+                <input type="checkbox" data-bind="checked: settings.plugins.rtmpstreamer.use_docker"> Use Docker
+            </label>
+        </div>
+    </div>
+    <div data-bind="visible: settings.plugins.rtmpstreamer.use_docker">
+        <h5>To use docker, manually install docker on the octoprint system and make sure the image you select had ffmpeg on it for the native architecture of that system</h5>
+        <div class="control-group">
+            <label class="control-label">{{ _('Docker Image') }}</label>
+            <div class="controls">
+                <input type="text" class="input-block-level" data-bind="value: settings.plugins.rtmpstreamer.docker_image">
+                <span class="help-block">The name and tag of the Docker image to use (default: {{ plugin_rtmpstreamer_docker_image_default | escape }}).</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">{{ _('Docker Container') }}</label>
+            <div class="controls">
+                <input type="text" class="input-block-level" data-bind="value: settings.plugins.rtmpstreamer.docker_container">
+                <span class="help-block">The name given to the running Docker container (default: {{ plugin_rtmpstreamer_docker_container_default | escape }}).</span>
+            </div>
+        </div>
+    </div>
+</form>
+<form class="form-horizontal">
+    <h4>Advanced FFMPEG Settings</h4>
+    <div class="control-group">
+        <label class="control-label">{{ _('Webcam Frame Rate') }}</label>
+        <div class="controls">
+            <div class="input-append">
+                <input type="number" class="input-mini" min="1" max="60" data-bind="value: settings.plugins.rtmpstreamer.frame_rate">
+                <span class="add-on">fps</span>
+            </div>
+            <span class="help-block">The OctoPrint webcam frame rate (default: {{ plugin_rtmpstreamer_frame_rate_default | escape }} fps).</span>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">{{ _('Use An Overlay') }}</label>
+        <div class="controls">
+            <input class="input-checkbox" type="checkbox" data-bind="checked: settings.plugins.rtmpstreamer.use_overlay"></input>
+        </div>
+    </div>
+    <div class="control-group" data-bind="visible: settings.plugins.rtmpstreamer.use_overlay">
+        <label class="control-label">{{ _('Use Dynamic Overlay') }}</label>
+        <div class="controls">
+            <input class="input-checkbox" type="checkbox" data-bind="checked: settings.plugins.rtmpstreamer.use_dynamic_overlay"></input>
+        </div>
+    </div>
+    <div class="control-group" data-bind="visible: settings.plugins.rtmpstreamer.use_overlay">
+        <label class="control-label">{{ _('Overlay Image') }}</label>
+        <div class="controls">
+            TODO, add filemanager
+        </div>
+    </div>
+    <div data-bind="visible: settings.plugins.rtmpstreamer.use_dynamic_overlay">
+        <div class="control-group" data-bind="visible: settings.plugins.rtmpstreamer.use_overlay">
+            <label class="control-label">{{ _('Dynamic Overlay Options') }}</label>
+            <div class="controls">
+                TODO, add overlay building options
+            </div>
+        </div>
+    </div>
+    <div class="control-group" data-bind="visible: settings.plugins.rtmpstreamer.use_overlay">
+        <label class="control-label">{{ _('Overlay Style') }}</label>
+        <div class="controls">
+            <select data-bind="value: settings.plugins.rtmpstreamer.overlay_style">
+                <option value="fs">Fullscreen</option>
+                <option value="wm_br">Watermark (bottom right)</option>
+                <option value="wm_bl">Watermark (bottom left)</option>
+                <option value="wm_tr">Watermark (top right)</option>
+                <option value="wm_tl">Watermark (top left)</option>
+            </select>
+        </div>
+    </div>
+    <div class="control-group" data-bind="visible: settings.plugins.rtmpstreamer.use_overlay() && settings.plugins.rtmpstreamer.overlay_style() != 'fs'">
+        <label class="control-label">{{ _('Watermark Padding') }}</label>
+        <div class="controls">
+            <input type="text" class="input-block-level" data-bind="value: settings.plugins.rtmpstreamer.overlay_padding">
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">{{ _('FFmpeg Command') }}</label>
+        <div class="controls">
+            <input type="text" class="input-block-level" data-bind="value: settings.plugins.rtmpstreamer.ffmpeg_cmd">
+            <span class="help-block"><b>Expert Use Only!</b> This is the FFmpeg command that is passed to FFMPEG for streaming activity. Variable substitution is performed to insert the appropriate values into the command line. Consult the FFmpeg manual for details on its use.</span>
+        </div>
+    </div>
+    <div class="ffmpeg_additional">
+        <div><small><a href="#" class="muted" data-bind="toggleContent: { class: 'fa-caret-right fa-caret-down', parent: '.ffmpeg_additional', container: '.hide' }"><i class="fa fa-caret-right"></i> Additional Information</a></small></div>
+        <div class="hide">
+            <p>FFmpeg default value: <pre><code>{{ plugin_rtmpstreamer_ffmpeg_cmd_default | escape }}</code></pre></p>
+            <table class="table table-striped table-condensed table-fit">
+                <caption>FFmpeg command substitutions</caption>
+                <thead>
+                <tr>
+                    <th>FFmpeg Cmd Var</th>
+                    <th>Settings Value</th>
+                </tr>
+                </thead>
+                <tr>
+                    <td>{stream_url}</td>
+                    <td>Stream Server URL</td>
+                </tr>
+                <tr>
+                    <td>{stream_resolution}</td>
+                    <td>Stream Resolution</td>
+                </tr>
+                <tr>
+                    <td>{webcam_url}</td>
+                    <td>OctoPrint Webcam URL</td>
+                </tr>
+                <tr>
+                    <td>{overlay_cmd}</td>
+                    <td>FFMPEG switch To Add A Stream Overlay</td>
+                </tr>
+                <tr>
+                    <td>{frame_rate}</td>
+                    <td>OctoPrint Webcam Frame Rate</td>
+                </tr>
+                <tr>
+                    <td>{gop_size}</td>
+                    <td>Internal Calculated Value (frame rate * 2)</td>
+                </tr>
+                <tr>
+                    <td>{filter}</td>
+                    <td>Internal Calculated Value</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>
+</div>

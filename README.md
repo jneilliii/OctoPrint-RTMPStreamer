@@ -14,7 +14,7 @@
 <img src="https://raw.githubusercontent.com/jneilliii/Octoprint-RTMPStreamer/master/tab_screenshot.jpg">
 
 ## Prerequisites for Streaming
-Follow the instructions found [here](docker_instructions.md) to install and configure docker/ffmpeg for use with this plugin for Live streaming. This is not necessary if you just want to view a url in an iframe on a tab.
+Follow the instructions found [here](docker_instructions.md) to install and configure docker/ffmpeg for use with this plugin for Live streaming. This is not necessary if you just want to view a url in an iframe on a tab or if your octoprint system has ffmpeg.
 
 ## Setup
 Once the prerequisites are met and the test command is successfull enter the resolution, stream url, and view url in the RTMP Streamer settings.
@@ -28,6 +28,10 @@ http://192.168.1.101/webcam/?action=stream instead of /webcam/?action=stream
 ## TODO:
 * [X] Additional testing.
 * [X] Proper error messaging for debugging (e.g. no fully qualified url provided)
+* [ ] Add Dynamic Overlay settings
+* [ ] Add Dynamic Overlay build function
+* [ ] Add Dynamic Overlay profiles, with some pre builts as examples
+* [ ] Detect is ffmpeg is available, if not require docker automatically
 
 ## Get Help
 
