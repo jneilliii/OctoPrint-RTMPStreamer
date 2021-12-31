@@ -168,11 +168,11 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 
         if not self.container:
             overlay_cmds = dict(
-                fs = "-filter_complex \"[1:v][0:v]scale2ref=iw:-1[over][base]; [base][over]overlay=0:0\"",
-                wm_br = "-filter_complex \"[0:v][1:v] overlay=({stream_width} - {overlay_width} - {overlay_padding}):({stream_height} - {overlay_height} - {overlay_padding})\"",
-                wm_bl = "-filter_complex \"[0:v][1:v] overlay={overlay_padding}:({stream_height} - {overlay_height} - {overlay_padding})\"",
-                wm_tr = "-filter_complex \"[0:v][1:v] overlay=({stream_width} - {overlay_width} - {overlay_padding}):{overlay_padding}\"",
-                wm_tl = "-filter_complex \"[0:v][1:v] overlay={overlay_padding}:{overlay_padding}\""
+                fs = "-filter_complex \"[1:v]scale={stream_width}:-1[0:v]scale2ref=iw:-1[over][base]; [base][over]overlay=0:0\"",
+                wm_br = "-filter_complex \"[0:v]scale={stream_width}:-1[1:v] overlay=({stream_width} - {overlay_width} - {overlay_padding}):({stream_height} - {overlay_height} - {overlay_padding})\"",
+                wm_bl = "-filter_complex \"[0:v]scale={stream_width}:-1[1:v] overlay={overlay_padding}:({stream_height} - {overlay_height} - {overlay_padding})\"",
+                wm_tr = "-filter_complex \"[0:v]scale={stream_width}:-1[1:v] overlay=({stream_width} - {overlay_width} - {overlay_padding}):{overlay_padding}\"",
+                wm_tl = "-filter_complex \"[0:v]scale={stream_width}:-1[1:v] overlay={overlay_padding}:{overlay_padding}\""
             )
             filter_str = ""
             filters = []
@@ -192,6 +192,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
                 if os.path.isfile("/tmp/overlay.png"):
                     overlay = PIL.Image.open("/tmp/overlay.png")
                     overlay_width, overlay_height = overlay.size
+                    #ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 http://127.0.0.1/webcam/?action=stream
                     stream_width, stream_height = self._settings.get(["stream_resolution"]).split("x")
                     # Substitute vars in overlay command
                     overlay_cmd = overlay_cmds[self._settings.get(["overlay_style"])].format(
