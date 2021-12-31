@@ -148,15 +148,15 @@
     <div class="control-group" data-bind="visible: settings.plugins.rtmpstreamer.use_overlay">
         <label class="control-label">{{ _('Overlay Image') }}</label>
         <div class="controls">
-            TODO, add filemanager
         </div>
+        <span class="help-block">TODO, add filemanager</span>
     </div>
     <div data-bind="visible: settings.plugins.rtmpstreamer.use_dynamic_overlay">
         <div class="control-group" data-bind="visible: settings.plugins.rtmpstreamer.use_overlay">
             <label class="control-label">{{ _('Dynamic Overlay Options') }}</label>
             <div class="controls">
-                TODO, add overlay building options
             </div>
+            <span class="help-block">TODO, add overlay building options</span>
         </div>
     </div>
     <div class="control-group" data-bind="visible: settings.plugins.rtmpstreamer.use_overlay">
@@ -175,6 +175,14 @@
         <label class="control-label">{{ _('Watermark Padding') }}</label>
         <div class="controls">
             <input type="text" class="input-block-level" data-bind="value: settings.plugins.rtmpstreamer.overlay_padding">
+        </div>
+    </div>
+    <div class="control-group" title="Debug FFMPEG" data-bind="hidden: settings.plugins.rtmpstreamer.use_docker">
+        <div class="controls">
+            <label class="checkbox">
+                <input type="checkbox" data-bind="checked: settings.plugins.rtmpstreamer.debug_ffmpeg"> Debug FFMPEG
+            </label>
+            <span class="help-block">Debug FFMPEG does not work with Docker</span>
         </div>
     </div>
     <div class="control-group">

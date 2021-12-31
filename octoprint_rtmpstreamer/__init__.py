@@ -2,7 +2,9 @@
 from __future__ import absolute_import
 
 import octoprint.plugin
+import octoprint.filemanager.storage
 from octoprint.server import user_permission
+import logging
 import os
 import PIL
 import docker
@@ -19,6 +21,8 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
                    octoprint.plugin.EventHandlerPlugin):
 
     def __init__(self):
+        self._logger = logging.getLogger(__name__)
+
         self.client = None
         self.container = None
         self.image = None
@@ -37,6 +41,16 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
         self.docker_container_default = "RTMPStreamer"
 
     ##~~ StartupPlugin
+    def on_startup(self, host, port):
+        # setup our custom logger
+        from octoprint.logging.handlers import CleaningTimedRotatingFileHandler
+        logging_handler = CleaningTimedRotatingFileHandler(self._settings.get_plugin_logfile_path(postfix="engine"), when="D", backupCount=3)
+        logging_handler.setFormatter(logging.Formatter("%(asctime)s %(message)s"))
+        logging_handler.setLevel(logging.DEBUG)
+
+        self._logger.addHandler(logging_handler)
+        self._logger.propagate = False
+
     def on_after_startup(self):
         self._logger.info("OctoPrint-RTMPStreamer loaded! Checking stream status.")
         if self._settings.get(["use_docker"]):
@@ -133,7 +147,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
                     self.client = None
                     self.container = None
         else:
-            if self.ffmpeg:
+            if self.ffmpeg and not self.ffmpeg.returncode:
                 self.container = self.ffmpeg
             else:
                 self.container = self.ffmpeg = None
@@ -231,7 +245,13 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
                 else:
                     self._logger.info("Launching ffmpeg locally:\n" + "|  " + stream_cmd)
                     cmd = shlex.split(stream_cmd, posix=True)
-                    self.ffmpeg = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.DEVNULL)
+                    if self._settings.get(["debug_ffmpeg"]) and not self._settings.get(["use_docker"]):
+                        stdout_loc = self._logger.handlers[0].stream
+                        stderr_loc = self._logger.handlers[0].stream
+                    else:
+                        stdout_loc = subprocess.DEVNULL
+                        stderr_loc = subprocess.PIPE
+                    self.ffmpeg = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=stderr_loc, stdout=stdout_loc)
                     self._logger.info("Stream ffmpeg pid {}".format(self.ffmpeg.pid))
             except Exception as e:
                 self._logger.error(str(e))
