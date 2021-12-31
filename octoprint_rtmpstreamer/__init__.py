@@ -245,12 +245,12 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
                 else:
                     self._logger.info("Launching ffmpeg locally:\n" + "|  " + stream_cmd)
                     cmd = shlex.split(stream_cmd, posix=True)
-                    if self._settings.get(["debug_ffmpeg"]) and not self._settings.get(["use_docker"]):
+                    if self._settings.get(["debug_ffmpeg"]):
                         stdout_loc = self._logger.handlers[0].stream
                         stderr_loc = self._logger.handlers[0].stream
                     else:
                         stdout_loc = subprocess.DEVNULL
-                        stderr_loc = subprocess.PIPE
+                        stderr_loc = subprocess.DEVNULL
                     self.ffmpeg = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=stderr_loc, stdout=stdout_loc)
                     self._logger.info("Stream ffmpeg pid {}".format(self.ffmpeg.pid))
             except Exception as e:
