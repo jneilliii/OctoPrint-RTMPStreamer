@@ -262,7 +262,6 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
                             self._logger.error("FFMPEG Error: {}".format(err))
                             self._plugin_manager.send_plugin_message(self._identifier, dict(error=err,status=True,streaming=False))
                     self.ffmpeg.terminate()
-                    self.ffmpeg.kill()
             except Exception as e:
                 self._logger.error(str(e))
                 self._plugin_manager.send_plugin_message(self._identifier, dict(error=str(e),status=True,streaming=False))
@@ -277,7 +276,10 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
     def _check_stream(self):
         self._get_container()
         if self.container:
-            self._logger.info("%s is streaming " % self.container.name)
+            if self._settings.get(["use_docker"]):
+                self._logger.info("%s is streaming " % self.container.name)
+            else:
+                self._logger.info("ffmpeg pid %s is streaming " % self.ffmpeg.pid)
             self._plugin_manager.send_plugin_message(self._identifier, dict(status=True,streaming=True))
         else:
             self._logger.info("stream is inactive ")
