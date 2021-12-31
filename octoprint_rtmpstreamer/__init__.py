@@ -231,7 +231,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
                 else:
                     self._logger.info("Launching ffmpeg locally:\n" + "|  " + stream_cmd)
                     cmd = shlex.split(stream_cmd, posix=True)
-                    self.ffmpeg = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE ,stdout=subprocess.PIPE)
+                    self.ffmpeg = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.DEVNULL)
                     self._logger.info("Stream ffmpeg pid {}".format(self.ffmpeg.pid))
             except Exception as e:
                 self._logger.error(str(e))
@@ -256,7 +256,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
                     self.container.stop()
                 else:
                     self._logger.info("Stream stopping ffmpeg pid {}".format(self.ffmpeg.pid))
-                    if self.ffmpeg.poll():
+                    if self.ffmpeg.returncode:
                         out, err = self.ffmpeg.communicate()
                         if err:
                             self._logger.error("FFMPEG Error: {}".format(err))
