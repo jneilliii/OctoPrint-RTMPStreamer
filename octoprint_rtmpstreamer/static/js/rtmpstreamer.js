@@ -83,6 +83,20 @@ $(function () {
 							}
 							});
 			}
+
+			if(data.success) {
+				new PNotify({
+							title: 'RTMP Streamer',
+							text: data.success,
+							type: 'success',
+							hide: true,
+							delay: 6000,
+							buttons: {
+								closer: true,
+								sticker: false
+							}
+							});
+			}
 			
 			if(data.status) {
 				if(data.streaming == true) {
