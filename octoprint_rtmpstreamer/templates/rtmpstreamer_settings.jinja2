@@ -14,20 +14,19 @@
                 <caption>More on "Stream Server URL"</caption>
                 <thead>
                 <tr>
-                    <th>Service</th>
-                    <th>Link to information</th>
+                    <th style="width: 100px">Service</th>
                     <th>Example URL</th>
                 </tr>
                 </thead>
                 <tr>
                     <td>YouTube Live</td>
-                    <td><a href="https://www.youtube.com/live_dashboard" target="_blank" rel="noopener">Live Streaming Dashboard</a></td>
-                    <td>rtmp://a.rtmp.youtube.com/live2/xxxx-xxxx-xxxx-xxxx</td>
+                    <td><a href="https://www.youtube.com/live_dashboard" target="_blank" rel="noopener">Live Streaming Dashboard</a><br>
+                    rtmp://a.rtmp.youtube.com/live2/xxxx-xxxx-xxxx-xxxx</td>
                 </tr>
                 <tr>
                     <td>Twitch</td>
-                    <td><a href="https://www.twitch.tv/dashboard/settings" target="_blank" rel="noopener">Channel Dashboard</a></td>
-                    <td>rtmp://live.twitch.tv/app/live_xxxxxxxxx_xxxxxxxxxx</td>
+                    <td><a href="https://www.twitch.tv/dashboard/settings" target="_blank" rel="noopener">Channel Dashboard</a><br>
+                    rtmp://live.twitch.tv/app/live_xxxxxxxxx_xxxxxxxxxx</td>
                 </tr>
             </table>
         </div>
@@ -77,21 +76,19 @@
                 <caption>More on "Viewer Embed URL"</caption>
                 <thead>
                 <tr>
-                    <th>Service</th>
+                    <th style="width: 100px">Service</th>
                     <th>Example URL</th>
-                    <th>Note</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr>
                     <td>YouTube Live</td>
-                    <td>https://www.youtube.com/embed/live_stream?channel=CHANNEL_ID</td>
-                    <td><a href="http://www.youtube.com/account_advanced" target="_blank" rel="noopener">Advanced Account Settings</a></td>
+                    <td>https://www.youtube.com/embed/live_stream?channel=CHANNEL_ID<br>
+                    <a href="http://www.youtube.com/account_advanced" target="_blank" rel="noopener">Advanced Account Settings</a></td>
                 </tr>
                 <tr>
                     <td>Twitch</td>
                     <td>https://player.twitch.tv/?channel=USERNAME&parent=FQDN&autoplay=false&muted=true</td>
-                    <td></td>
                 </tr>
                 </tbody>
             </table>
@@ -168,7 +165,10 @@
     <div class="control-group" data-bind="visible: settings.plugins.rtmpstreamer.use_overlay() && settings.plugins.rtmpstreamer.overlay_style() != 'fs'">
         <label class="control-label">{{ _('Watermark Padding') }}</label>
         <div class="controls">
-            <input type="text" class="input-block-level" data-bind="value: settings.plugins.rtmpstreamer.overlay_padding">
+            <div class="input-append">
+                <input type="number" class="input-mini" min="0" data-bind="value: settings.plugins.rtmpstreamer.overlay_padding">
+                <span class="add-on">px</span>
+            </div>
         </div>
     </div>
     <div class="control-group" title="Debug FFMPEG" data-bind="hidden: settings.plugins.rtmpstreamer.use_docker">
