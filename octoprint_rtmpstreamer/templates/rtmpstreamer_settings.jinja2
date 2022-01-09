@@ -39,9 +39,13 @@
         </div>
     </div>
     <div class="control-group">
-        <label class="control-label">{{ _('Stream Framerate') }}</label>
+        <label class="control-label">{{ _('Stream Frame Rate') }}</label>
         <div class="controls">
-            <input type="text" class="input-block-level" data-bind="value: settings.plugins.rtmpstreamer.stream_framerate" placeholder="Enter framerate for stream.">
+            <div class="input-append">
+                <input type="number" class="input-mini" min="1" max="60" data-bind="value: settings.plugins.rtmpstreamer.frame_rate">
+                <span class="add-on">fps</span>
+            </div>
+            <span class="help-block">The OctoPrint webcam frame rate (default: {{ plugin_rtmpstreamer_frame_rate_default | escape }} fps).</span>
         </div>
     </div>
     <div class="control-group">
@@ -99,7 +103,7 @@
     <div class="control-group" title="Use docker">
         <div class="controls">
             <label class="checkbox">
-                <input type="checkbox" data-bind="checked: settings.plugins.rtmpstreamer.use_docker"> Use Docker
+                <input type="checkbox" data-bind="checked: settings.plugins.rtmpstreamer.use_docker, disable: settings.plugins.rtmpstreamer.lock_docker"> Use Docker
             </label>
         </div>
     </div>
@@ -123,16 +127,6 @@
 </form>
 <form class="form-horizontal">
     <h4>Advanced FFMPEG Settings</h4>
-    <div class="control-group">
-        <label class="control-label">{{ _('Webcam Frame Rate') }}</label>
-        <div class="controls">
-            <div class="input-append">
-                <input type="number" class="input-mini" min="1" max="60" data-bind="value: settings.plugins.rtmpstreamer.frame_rate">
-                <span class="add-on">fps</span>
-            </div>
-            <span class="help-block">The OctoPrint webcam frame rate (default: {{ plugin_rtmpstreamer_frame_rate_default | escape }} fps).</span>
-        </div>
-    </div>
     <div class="control-group">
         <label class="control-label">{{ _('Use An Overlay') }}</label>
         <div class="controls">

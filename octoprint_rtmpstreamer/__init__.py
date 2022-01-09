@@ -74,6 +74,21 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 
     ##~~ SettingsPlugin
     def get_settings_defaults(self):
+        lock_docker = False
+        use_docker = False
+
+        ffmpeg_locations = ["/usr/bin/ffmpeg", "/usr/local/bin/ffmpeg"]
+        ffmpeg_found = False
+        for f_ in ffmpeg_locations:
+            if os.path.isfile(f_):
+                ffmpeg_found = True
+                break
+
+        if not ffmpeg_found:
+            self._logger.info("FFMPEG binary not found, Docker Forced!")
+            lock_docker = True
+            use_docker = True
+
         return dict(
             # put your plugin's default settings here
             view_url = "",
@@ -87,7 +102,8 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
             streaming = False,
             auto_start = False,
             auto_start_on_power_up=False,
-            use_docker = False,
+            lock_docker = lock_docker,
+            use_docker = use_docker,
             docker_image = self.docker_image_default,
             docker_container = self.docker_container_default,
             ffmpeg_cmd = self.ffmpeg_cmd_default,
