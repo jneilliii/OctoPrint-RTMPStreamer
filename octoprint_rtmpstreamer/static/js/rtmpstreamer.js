@@ -137,7 +137,20 @@ $(function () {
 					contentType: "application/json; charset=UTF-8"
 				})
 			}
-		}
+		};
+
+		self.rmImage = function(file) {
+			showConfirmationDialog({
+				message: "This is not reversible. Delete '" + file + "'?",
+				onproceed: function () {
+					self.doRmImage(file);
+				}
+			}); 
+		};
+
+		self.doRmImage = function(file) {
+			alert("TODO");
+                };
 	}
 
 	ADDITIONAL_VIEWMODELS.push([

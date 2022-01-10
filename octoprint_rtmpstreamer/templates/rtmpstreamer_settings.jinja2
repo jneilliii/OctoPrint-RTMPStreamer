@@ -131,25 +131,11 @@
         </div>
     </div>
     <div class="control-group" data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay">
-        <label class="control-label">{{ _('Use Dynamic Overlay') }}</label>
-        <div class="controls">
-            <input class="input-checkbox" type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay"></input>
-        </div>
-    </div>
-    <div class="control-group" data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay">
         <label class="control-label">{{ _('Overlay Image') }}</label>
         <div class="controls">
             <div class="input-append">
                 <select data-bind="options: overlay_files, value: settingsViewModel.settings.plugins.rtmpstreamer.overlay_file"></select>
-                <button class="btn btn-primary" data-bind="enable: settingsViewModel.settings.plugins.rtmpstreamer.overlay_file() != '{{ plugin_rtmpstreamer_overlay_file_default }}'">Delete</button>
-            </div>
-        </div>
-    </div>
-    <div data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay">
-        <div class="control-group" data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay">
-            <label class="control-label">{{ _('Dynamic Overlay Options') }}</label>
-            <div class="controls">
-                TODO, add overlay building options
+                <button class="btn btn-primary" data-bind="enable: settingsViewModel.settings.plugins.rtmpstreamer.overlay_file() != '{{ plugin_rtmpstreamer_overlay_file_default }}', click: function() { rmImage(settingsViewModel.settings.plugins.rtmpstreamer.overlay_file()); return true; }">Delete</button>
             </div>
         </div>
     </div>
@@ -171,6 +157,20 @@
             <div class="input-append">
                 <input type="number" class="input-mini" min="0" max="1024" data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.overlay_padding">
                 <span class="add-on">px</span>
+            </div>
+        </div>
+    </div>
+    <div class="control-group" data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay">
+        <label class="control-label">{{ _('Dynamic Info Overlay') }}</label>
+        <div class="controls">
+            <input class="input-checkbox" type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay"></input>
+        </div>
+    </div>
+    <div data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay">
+        <div class="control-group" data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay">
+            <label class="control-label">{{ _('Dynamic Overlay Options') }}</label>
+            <div class="controls">
+                TODO, add overlay building options
             </div>
         </div>
     </div>
