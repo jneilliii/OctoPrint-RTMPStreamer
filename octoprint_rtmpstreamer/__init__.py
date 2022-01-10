@@ -6,7 +6,7 @@ import octoprint.filemanager.storage
 from octoprint.server import user_permission
 import logging
 import os
-import PIL
+from PIL import Image
 import docker
 import shlex
 import shutil
@@ -31,10 +31,10 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
         self.frame_rate_default = 5
         self.stream_resolution_default = "640x480"
         self.ffmpeg_cmd_default = (
-            "ffmpeg -re -f mjpeg -framerate {frame_rate} -i {webcam_url} {overlay_cmd} "                                                                   # Video input
+            "{ffmpeg} -re -f mjpeg -framerate {frame_rate} -i {webcam_url} {overlay_cmd} "                                                                   # Video input
             "-ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i /dev/zero "                                               # Audio input
             "-acodec aac -ab 128k "                                                                                        # Audio output
-            "-s {stream_resolution} -vcodec h264 -pix_fmt yuv420p -framerate {frame_rate} -g {gop_size} -vb 700k -strict experimental {filter} " # Video output
+            "-s {stream_resolution} -vcodec {videocodec} -threads {threads} -pix_fmt yuv420p -framerate {frame_rate} -g {gop_size} -vb {bitrate} -strict experimental {filter} " # Video output
             "-f flv {stream_url}")                                                                                         # Output stream
         self.overlay_image_default = "jneilliii.png"
         self.docker_image_default = "kolisko/rpi-ffmpeg:latest"
@@ -62,33 +62,19 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 
     ##~~ TemplatePlugin
     def get_template_configs(self):
-        return [dict(type="settings", custom_bindings=False)]
+        return [dict(type="settings", custom_bindings=True)]
 
     def get_template_vars(self):
         return dict(
             frame_rate_default = self.frame_rate_default,
             ffmpeg_cmd_default = self.ffmpeg_cmd_default,
             docker_image_default = self.docker_image_default,
-            docker_container_default = self.docker_container_default
+            docker_container_default = self.docker_container_default,
+            overlay_file_default = self.overlay_image_default
         )
 
     ##~~ SettingsPlugin
     def get_settings_defaults(self):
-        lock_docker = False
-        use_docker = False
-
-        ffmpeg_locations = ["/usr/bin/ffmpeg", "/usr/local/bin/ffmpeg"]
-        ffmpeg_found = False
-        for f_ in ffmpeg_locations:
-            if os.path.isfile(f_):
-                ffmpeg_found = True
-                break
-
-        if not ffmpeg_found:
-            self._logger.info("FFMPEG binary not found, Docker Forced!")
-            lock_docker = True
-            use_docker = True
-
         return dict(
             # put your plugin's default settings here
             view_url = "",
@@ -98,16 +84,19 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
             use_dynamic_overlay = False,
             overlay_style = "wm_br",
             overlay_padding = 10,
-            overlay_file = self._basefolder + "/static/img/" + self.overlay_image_default,
+            overlay_file = self.overlay_image_default,
+            overlay_files = [ f for f in os.listdir(self._basefolder + "/static/img/") if os.path.isfile(self._basefolder + "/static/img/" + f)],
             streaming = False,
             auto_start = False,
             auto_start_on_power_up=False,
-            lock_docker = lock_docker,
-            use_docker = use_docker,
+            use_docker = False,
             docker_image = self.docker_image_default,
             docker_container = self.docker_container_default,
             ffmpeg_cmd = self.ffmpeg_cmd_default,
             frame_rate = self.frame_rate_default,
+            stream_bitrate = "700k",
+            ffmpeg_threads = 1,
+            ffmpeg_codec = "libx264",
 
             # Default values
             frame_rate_default = self.frame_rate_default,
@@ -190,7 +179,17 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 
     ##~~ General Functions
     def _start_stream(self):
-        if self._settings.global_get(["webcam", "stream"]).startswith("/"):
+        if not self._settings.global_get(["webcam", "ffmpeg"]) and not self._settings.get(["use_docker"]):
+            self._plugin_manager.send_plugin_message(self._identifier, dict(
+                error="Path to FFMPEG not set.  Please configure OctoPrint's Webcam & Timelapse path, or use docker",
+                status=True, streaming=False))
+            return
+        if not self._settings.global_get(["webcam", "stream"]):
+            self._plugin_manager.send_plugin_message(self._identifier, dict(
+                error="No Webcam stream url.  Please configure OctoPrint's Webcam & Timelapse url",
+                status=True, streaming=False))
+            return
+        elif self._settings.global_get(["webcam", "stream"]).startswith("/"):
             self._logger.info("Webcam stream url starts with a /, assuming localhost.")
             # FIXME Should have a check for https here?
             webcamstream = "http://127.0.0.1" + self._settings.global_get(["webcam", "stream"])
@@ -218,12 +217,12 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
             gop_size = int(self._settings.get(["frame_rate"])) * 2
             overlay_cmd = ""
             if self._settings.get(["use_overlay"]):
-                if os.path.isfile(self._settings.get(["overlay_file"])):
-                    shutil.copy(self._settings.get(["overlay_file"]), "/tmp/overlay.png")
+                if os.path.isfile(self._basefolder + "/static/img/" + self._settings.get(["overlay_file"])):
+                    shutil.copy(self._basefolder + "/static/img/" + self._settings.get(["overlay_file"]), "/tmp/overlay.png")
                 if os.path.isfile("/tmp/overlay.png"):
-                    overlay = PIL.Image.open("/tmp/overlay.png")
+                    overlay = Image.open("/tmp/overlay.png")
                     overlay_width, overlay_height = overlay.size
-                    #ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 http://127.0.0.1/webcam/?action=stream
+                    #ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 webcamstream
                     stream_width, stream_height = self._settings.get(["stream_resolution"]).split("x")
                     # Substitute vars in overlay command
                     overlay_cmd = overlay_cmds[self._settings.get(["overlay_style"])].format(
@@ -236,12 +235,19 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
                     overlay_cmd = "-pattern_type glob -loop 2 -r 1 -i \"/tmp/overlay*.png\" " + overlay_cmd
                 else:
                     overlay_cmd = "-i /tmp/overlay.png " + overlay_cmd
+            ffmpeg_cli = "ffmpeg"
+            if self._settings.global_get(["webcam", "ffmpeg"]):
+                ffmpeg_cli = self._settings.global_get(["webcam", "ffmpeg"])
             # Substitute vars in ffmpeg command
             stream_cmd = self._settings.get(["ffmpeg_cmd"]).format(
+                ffmpeg = ffmpeg_cli,
                 overlay_cmd = overlay_cmd,
-                webcam_url = self._settings.global_get(["webcam", "stream"]),
+                webcam_url = webcamstream,
                 stream_url = self._settings.get(["stream_url"]),
                 frame_rate = self._settings.get(["frame_rate"]),
+                bitrate = self._settings.get(["stream_bitrate"]),
+                threads = self._settings.get(["ffmpeg_threads"]),
+                videocodec = self._settings.get(["ffmpeg_codec"]),
                 stream_resolution = self._settings.get(["stream_resolution"]),
                 gop_size = gop_size,
                 filter = filter_str)

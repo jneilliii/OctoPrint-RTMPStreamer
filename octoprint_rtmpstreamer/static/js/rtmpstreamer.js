@@ -3,12 +3,14 @@ $(function () {
 		var self = this;
 		
 		self.settingsViewModel = parameters[0];
+
 		self.stream_resolution = ko.observable();
 		self.view_url = ko.observable();
 		self.stream_url = ko.observable();
 		self.auto_start = ko.observable();
 		self.streaming = ko.observable();
 		self.processing = ko.observable(false);
+		self.overlay_files = ko.observableArray([]);
 		self.icon = ko.pureComputed(function() {
 										var icons = [];
 										if (self.streaming() && !self.processing()) {
@@ -29,11 +31,12 @@ $(function () {
 										return self.streaming() ? 'btn-danger' : 'btn-primary';
 									});									
 
-		self.onBefireBinding = function () {
+		self.onBeforeBinding = function () {
 			self.stream_resolution(self.settingsViewModel.settings.plugins.rtmpstreamer.stream_resolution());
 			// self.view_url(self.settingsViewModel.settings.plugins.rtmpstreamer.view_url());
 			self.stream_url(self.settingsViewModel.settings.plugins.rtmpstreamer.stream_url());
 			self.auto_start(self.settingsViewModel.settings.plugins.rtmpstreamer.auto_start());
+			self.overlay_files(self.settingsViewModel.settings.plugins.rtmpstreamer.overlay_files());
 		};
 
 		self.onEventSettingsUpdated = function (payload) {            
@@ -41,6 +44,7 @@ $(function () {
 			// self.view_url(self.settingsViewModel.settings.plugins.rtmpstreamer.view_url());
 			self.stream_url(self.settingsViewModel.settings.plugins.rtmpstreamer.stream_url());
 			self.auto_start(self.settingsViewModel.settings.plugins.rtmpstreamer.auto_start());
+			self.overlay_files(self.settingsViewModel.settings.plugins.rtmpstreamer.overlay_files());
         };
 		
 		self.onAfterBinding = function() {
@@ -140,6 +144,6 @@ $(function () {
 			// This is the constructor to call for instantiating the plugin
 			rtmpstreamerViewModel,
 			["settingsViewModel"],
-			[("#tab_plugin_rtmpstreamer")]
+			["#settings_plugin_rtmpstreamer", "#tab_plugin_rtmpstreamer"]
 		]);
 });
