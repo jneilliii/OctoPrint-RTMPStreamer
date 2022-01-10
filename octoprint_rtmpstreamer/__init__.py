@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 
 import octoprint.plugin
+import octoprint.util
 import octoprint.filemanager.storage
 from octoprint.server import user_permission
 import logging
@@ -27,6 +28,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
         self.container = None
         self.image = None
         self.ffmpeg = None
+        self.dynamicInfo = None
 
         self.frame_rate_default = 5
         self.stream_resolution_default = "640x480"
@@ -283,9 +285,11 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
                 self._logger.info("Stream started successfully")
                 self._plugin_manager.send_plugin_message(self._identifier, dict(success="Stream started",status=True,streaming=True))
                 if self._settings.get(["use_dynamic_overlay"]):
-                    self._build_overlay()
+                    self.dynamicInfo = octoprint.util.RepeatedTimer(2.0, self._build_overlay)
+                    self.dynamicInfo.start()
 
     def _build_overlay(self):
+        self._logger.info("Building dynamic overlay")
         # FIXME: start dynamic image update process, should be a background loop
         # that stops with the stream
         return
@@ -305,6 +309,10 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
                             self._logger.error("FFMPEG Error: {}".format(err))
                             self._plugin_manager.send_plugin_message(self._identifier, dict(error=err,status=True,streaming=False))
                     self.ffmpeg.terminate()
+
+                if self._settings.get(["use_dynamic_overlay"]):
+                    self.dynamicInfo.cancel()
+                    self.dynamicInfo = None
             except Exception as e:
                 self._logger.error(str(e))
                 self._plugin_manager.send_plugin_message(self._identifier, dict(error=str(e),status=True,streaming=False))
