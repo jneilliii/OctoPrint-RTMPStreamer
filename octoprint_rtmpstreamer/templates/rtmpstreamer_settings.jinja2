@@ -50,13 +50,13 @@
     <div class="control-group">
         <label class="control-label">{{ _('Stream While Printing') }}</label>
         <div class="controls">
-            <input class="input-checkbox" type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.auto_start"></input>
+            <input class="input-checkbox" type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.auto_start"/>
         </div>
     </div>
     <div class="control-group">
         <label class="control-label">{{ _('Stream On Startup') }}</label>
         <div class="controls">
-            <input class="input-checkbox" type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.auto_start_on_power_up"></input>
+            <input class="input-checkbox" type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.auto_start_on_power_up"/>
         </div>
     </div>
 </form>
@@ -127,7 +127,7 @@
     <div class="control-group">
         <label class="control-label">{{ _('Use An Overlay') }}</label>
         <div class="controls">
-            <input class="input-checkbox" type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay"></input>
+            <input class="input-checkbox" type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay"/>
         </div>
     </div>
     <div class="control-group" data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay">
@@ -161,14 +161,23 @@
         </div>
     </div>
     <div class="control-group" data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay">
-        <label class="control-label">{{ _('Dynamic Info Overlay') }}</label>
+        <label class="control-label">{{ _('Dynamic Overlay') }}</label>
         <div class="controls">
-            <input class="input-checkbox" type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay"></input>
+            <input class="input-checkbox" type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay"/>
+        </div>
+    </div>
+    <div class="control-group" data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay">
+        <label class="control-label">{{ _('Dynamic Interval') }}</label>
+        <div class="controls">
+            <div class="input-append">
+                <input class="input-mini" type="number" min="1" max="60" data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.dynamic_overlay_interval"/>
+                <span class="add-on">seconds</span>
+            </div>
         </div>
     </div>
     <div data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay">
         <div class="control-group" data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay">
-            <label class="control-label">{{ _('Dynamic Overlay Options') }}</label>
+            <label class="control-label">{{ _('Dynamic Setup') }}</label>
             <div class="controls">
                 <button class="btn btn-mini icon-plus" data-bind="click: $root.addInfo"></button>
                 <div class="row-fluid" style="min-height: 50px;" data-bind="foreach: settingsViewModel.settings.plugins.rtmpstreamer.dynamic_layout">

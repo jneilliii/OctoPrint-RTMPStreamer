@@ -86,6 +86,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
             stream_resolution = self.stream_resolution_default,
             use_overlay = True,
             use_dynamic_overlay = False,
+            dynamic_overlay_interval = 2,
             dynamic_layout = [],
             overlay_style = "wm_br",
             overlay_padding = 10,
@@ -295,7 +296,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
                 self._logger.info("Stream started successfully")
                 self._plugin_manager.send_plugin_message(self._identifier, dict(success="Stream started",status=True,streaming=True))
                 if self._settings.get(["use_dynamic_overlay"]):
-                    self.dynamicInfo = octoprint.util.RepeatedTimer(2.0, self._build_overlay)
+                    self.dynamicInfo = octoprint.util.RepeatedTimer(int(self._settings.get(["dynamic_overlay_interval"])), self._build_overlay)
                     self.dynamicInfo.start()
 
     def _build_overlay(self):
@@ -372,7 +373,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
             txtval = txt.format(
                 filename = fileInfo["name"],
                 estimatedprinttime = self.convertSeconds(int(estimatedPrintTime)) if estimatedPrintTime else "...",
-                percdone = "{:.2f}".format(jobInfo["completion"]),
+                percdone = "{:.2f}".format(jobInfo["completion"]) if jobInfo["completion"] else 0,
                 printtime = self.convertSeconds(int(jobInfo["printTime"])) if jobInfo["printTime"] else "...",
                 timeleft = self.convertSeconds(int(jobInfo["printTimeLeft"])) if jobInfo["printTimeLeft"] else "...",
                 bedtemp = temps["bed"]["actual"],
