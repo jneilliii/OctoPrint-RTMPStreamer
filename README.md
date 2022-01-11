@@ -28,10 +28,9 @@ http://192.168.1.101/webcam/?action=stream instead of /webcam/?action=stream
 ## TODO:
 * [X] Additional testing.
 * [X] Proper error messaging for debugging (e.g. no fully qualified url provided)
-* [ ] Add Dynamic Overlay settings
-* [ ] Add Dynamic Overlay build function
+* [X] Add Dynamic Overlay settings
+* [X] Add Dynamic Overlay build function
 * [ ] Add Dynamic Overlay profiles, with some pre builts as examples
-* [ ] Detect is ffmpeg is available, if not require docker automatically
 
 ## Get Help
 
