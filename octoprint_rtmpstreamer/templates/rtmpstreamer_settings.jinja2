@@ -170,7 +170,14 @@
         <div class="control-group" data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay">
             <label class="control-label">{{ _('Dynamic Overlay Options') }}</label>
             <div class="controls">
-                TODO, add overlay building options
+                <button class="btn btn-mini icon-plus" data-bind="click: $root.addInfo"></button>
+                <div class="row-fluid" style="min-height: 50px;" data-bind="foreach: settingsViewModel.settings.plugins.rtmpstreamer.dynamic_layout">
+                    <div class="row-fluid" style="margin-bottom: 5px;">
+                        <div class="span2" data-bind="text: position()[0] + ', ' + position()[1]"></div>
+                        <div class="span3" data-bind="text: text"></div>
+                        <div class="span1 btn-group" style="text-align: center; padding-top: 3px;"><button class="btn btn-mini icon-edit" data-bind="click: $root.editInfo"></button><button class="btn btn-mini btn-danger icon-trash" data-bind="click: $root.removeInfo"></button></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -269,4 +276,106 @@
         </div>
     </div>
 </form>
+</div>
+
+<div id="DynamicInfoEditor" data-bind="with: selected_layout" class="modal hide fade">
+    <div class="modal-header">
+        <a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
+        <h3>Overlay Editor</h3>
+    </div>
+
+    <div class="modal-body">
+        <div class="controls">
+            <label class="control-label">{{ _('Position') }}</label>
+            <div class="control-group">
+                <input type="number" min="0" title="Enter x to place the text" data-bind="value: position()[0], attr: { max: $root.stream_resolution().split('x')[0] }" class="input-mini"/>
+                <input type="number" min="0" title="Enter y to place the text" data-bind="value: position()[1], attr: { max: $root.stream_resolution().split('x')[1] }" class="input-mini"/>
+            </div>
+        </div>
+        <div class="controls">
+            <label class="control-label">{{ _('Text') }}</label>
+            <input type="text" title="Enter text to display on the overlay" data-bind="value: text" class="input"/>
+        </div>
+        <div class="overlay_text_vars">
+            <div><small><a href="#" class="muted" data-bind="toggleContent: { class: 'fa-caret-right fa-caret-down', parent: '.overlay_text_vars', container: '.hide' }"><i class="fa fa-caret-right"></i> Text Substitutions</a></small></div>
+            <div class="hide">
+                <table class="table table-striped table-condensed table-fit">
+                    <thead>
+                        <tr>
+                            <th>Text Var</th>
+                            <th>Definition</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{filename}</td>
+                            <td>Filename</td>
+                        </tr>
+                        <tr>
+                            <td>{estimatedprinttime}</td>
+                            <td>Estimated Print Time</td>
+                        </tr>
+                        <tr>
+                            <td>{percdone}</td>
+                            <td>Percentage done</td>
+                        </tr>
+                        <tr>
+                            <td>{printtime}</td>
+                            <td>Print Time Elapsed</td>
+                        </tr>
+                        <tr>
+                            <td>{timeleft}</td>
+                            <td>Print Time Remaining</td>
+                        </tr>
+                        <tr>
+                            <td>{bedtemp}</td>
+                            <td>Temperature of the bed</td>
+                        </tr>
+                        <tr>
+                            <td>{bedtarget}</td>
+                            <td>Target Temperature of the bed</td>
+                        </tr>
+                        <tr>
+                            <td>{chambertemp}</td>
+                            <td>Temperature of the chamber</td>
+                        </tr>
+                        <tr>
+                            <td>{chambertarget}</td>
+                            <td>Target Temperature of the chamber</td>
+                        </tr>
+                        <tr>
+                            <td>{toolntemp}</td>
+                            <td>Temperature of Tool, n = 0 - 4, ie: {tool0temp}</td>
+                        </tr>
+                        <tr>
+                            <td>{toolntarget}</td>
+                            <td>Target Temperature of Tool, n = 0 - 4, ie: {tool0target}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="controls">
+            <label class="control-label">{{ _('Font') }}</label>
+            <select class="input" data-bind="value: font">
+                <option value="times.ttf">Times New Roman</option>
+                <option value="timesbd.ttf">Times New Roman (Bold)</option>
+            </select>
+        </div>
+        <div class="controls">
+            <label class="control-label">{{ _('Size') }}</label>
+            <input type="number" class="input-mini" min="10" max="72" step="2" data-bind="value: size" />
+        </div>
+        <div class="controls">
+            <label class="control-label">{{ _('Color') }}</label>
+            <div class="input-prepend">
+                <input type="color" class="add-on" style="width: 25px;" data-bind="value: color" />
+                <input type="text" class="input-mini" readonly="true" data-bind="value: color" />
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <small>Make sure to click save in the main settings after making changes here.</small> <button type="button" class="btn" data-dismiss="modal">Close</button>
+    </div>
 </div>

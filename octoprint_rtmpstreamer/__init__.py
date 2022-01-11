@@ -8,6 +8,8 @@ from octoprint.server import user_permission
 import logging
 import os
 from PIL import Image
+from PIL import ImageFont
+from PIL import ImageDraw
 import docker
 import shlex
 import shutil
@@ -84,6 +86,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
             stream_resolution = self.stream_resolution_default,
             use_overlay = True,
             use_dynamic_overlay = False,
+            dynamic_layout = [],
             overlay_style = "wm_br",
             overlay_padding = 10,
             overlay_file = self.overlay_image_default,
@@ -220,14 +223,21 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
             overlay_cmd = ""
             if self._settings.get(["use_overlay"]):
                 if os.path.isfile(self._basefolder + "/static/img/" + self._settings.get(["overlay_file"])):
-                    shutil.copy(self._basefolder + "/static/img/" + self._settings.get(["overlay_file"]), "/tmp/overlay.png")
+                    if self._settings.get(["use_dynamic_overlay"]):
+                        self._build_overlay()
+                    else:
+                        shutil.copy(self._basefolder + "/static/img/" + self._settings.get(["overlay_file"]), "/tmp/overlay.png")
                 if os.path.isfile("/tmp/overlay.png"):
                     overlay = Image.open("/tmp/overlay.png")
                     overlay_width, overlay_height = overlay.size
-                    #ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 webcamstream
+                    #test stream before use, won't work unless ffprobe is available, ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 webcamstream
                     stream_width, stream_height = self._settings.get(["stream_resolution"]).split("x")
                     # Substitute vars in overlay command
-                    overlay_cmd = overlay_cmds[self._settings.get(["overlay_style"])].format(
+                    if self._settings.get(["use_dynamic_overlay"]):
+                        overlay_style = "fs"
+                    else:
+                        overlay_style = self._settings.get(["overlay_style"])
+                    overlay_cmd = overlay_cmds[overlay_style].format(
                         stream_width = stream_width,
                         stream_height = stream_height,
                         overlay_width = overlay_width,
@@ -290,9 +300,96 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 
     def _build_overlay(self):
         self._logger.info("Building dynamic overlay")
-        # FIXME: start dynamic image update process, should be a background loop
-        # that stops with the stream
-        return
+
+        # Get the current printer data
+        current_data = self._printer.get_current_data()
+        current_temps = self._printer.get_current_temperatures()
+
+        # name, path, size, origin, date
+        fileInfo = current_data["job"]["file"]
+
+        estimatedPrintTime = current_data["job"]["estimatedPrintTime"]
+
+        # completion, filepos, printTime, printTimeLeft, printTimeOrigin
+        jobInfo = current_data["progress"]
+
+        # [tooln, bed, chamber][actual, target]
+        temps = current_temps
+
+        overlay_style = self._settings.get(["overlay_style"])
+        padding = self._settings.get(["overlay_padding"])
+        if overlay_style == "fs":
+            img = Image.open(self._basefolder + "/static/img/" + self._settings.get(["overlay_file"]))
+        else:
+            watermark = Image.open(self._basefolder + "/static/img/" + self._settings.get(["overlay_file"]))
+            wm_w, wm_h = watermark.size
+            img_w, img_h = self._settings.get(["stream_resolution"]).split("x")
+            img = Image.new('RGBA', (int(img_w), int(img_h)), (0, 0, 0, 0))
+            img_w, img_h = img.size
+            if overlay_style == "wm_br":
+                img.paste(watermark, ((img_w - wm_w - padding), (img_h - wm_h - padding)))
+            elif overlay_style == "wm_bl":
+                img.paste(watermark, ((padding), (img_h - wm_h - padding)))
+            elif overlay_style == "wm_tr":
+                img.paste(watermark, ((img_w - wm_w - padding), (padding)))
+            elif overlay_style == "wm_tl":
+                img.paste(watermark, (padding, padding))
+
+        draw = ImageDraw.Draw(img)
+
+        dynamicLayout = self._settings.get(["dynamic_layout"])
+
+        for quadrant in dynamicLayout:
+            fontname = "times-ro.ttf"
+            if quadrant["font"]:
+                fontname = quadrant["font"]
+            fontsize = 24
+            if quadrant["size"]:
+                fontsize = quadrant["size"]
+
+            try:
+                font = ImageFont.truetype(self._basefolder + "/static/fonts/" + fontname, fontsize)
+            except Exception as e:
+                self._logger.error("{} font not found: {}".format(fontname, e))
+                font = ImageFont.truetype(self._basefolder + "/static/fonts/times.ttf", fontsize)
+
+            loc_x = 10
+            loc_y = 10
+            if quadrant["position"]:
+                loc_x = int(quadrant["position"][0])
+                loc_y = int(quadrant["position"][1])
+            txt = "N/A"
+            if quadrant["text"]:
+                txt = quadrant["text"]
+            color = (0, 0, 0)
+            if quadrant["color"]:
+                h = quadrant["color"].lstrip("#")
+                color = tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+
+            txtval = txt.format(
+                filename = fileInfo["name"],
+                estimatedprinttime = estimatedPrintTime,
+                percdone = jobInfo["completion"],
+                printtime = jobInfo["printTime"],
+                timeleft = jobInfo["printTimeLeft"],
+                bedtemp = temps["bed"]["actual"],
+                bedtarget = temps["bed"]["target"],
+                chambertemp = temps["chamber"]["actual"],
+                chambertarget = temps["chamber"]["target"],
+                tool0temp = temps["tool0"]["actual"],
+                tool0target = temps["tool0"]["target"],
+                tool1temp = temps["tool1"]["actual"] if "tool1" in temps else 0,
+                tool1target = temps["tool1"]["target"] if "tool1" in temps else 0,
+                tool2temp = temps["tool2"]["actual"] if "tool2" in temps else 0,
+                tool2target = temps["tool2"]["target"] if "tool2" in temps else 0,
+                tool3temp = temps["tool3"]["actual"] if "tool3" in temps else 0,
+                tool3target = temps["tool3"]["target"] if "tool3" in temps else 0,
+                tool4temp = temps["tool4"]["actual"] if "tool4" in temps else 0,
+                tool4target = temps["tool4"]["target"] if "tool4" in temps else 0)
+
+            draw.text((loc_x, loc_y), txtval, color, font = font)
+
+        img.save("/tmp/overlay.png", "PNG")
 
     def _stop_stream(self):
         self._get_container()

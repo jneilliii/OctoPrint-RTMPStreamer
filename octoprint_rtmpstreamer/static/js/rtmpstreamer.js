@@ -4,6 +4,9 @@ $(function () {
 		
 		self.settingsViewModel = parameters[0];
 
+		self.dynamic_layout = ko.observableArray();
+		self.selected_layout = ko.observable();
+
 		self.stream_resolution = ko.observable();
 		self.view_url = ko.observable();
 		self.stream_url = ko.observable();
@@ -151,6 +154,32 @@ $(function () {
 		self.doRmImage = function(file) {
 			alert("TODO");
                 };
+
+		self.addInfo = function(data) {
+			self.selected_layout({
+				position: ko.observableArray([0, 0]),
+				text: ko.observable(''),
+				font: ko.observable(''),
+				size: ko.observable(24),
+				color: ko.observable('#000000')
+			});
+			self.settingsViewModel.settings.plugins.rtmpstreamer.dynamic_layout.push(self.selected_layout());
+			self.dynamic_layout(self.settingsViewModel.settings.plugins.rtmpstreamer.dynamic_layout());
+			$('#DynamicInfoEditor').modal('show');
+		}
+
+		self.editInfo = function(data) {
+			console.log(data);
+			self.selected_layout(data);
+			$('#DynamicInfoEditor').modal('show');
+		};
+
+		self.removeInfo = function(data) {
+			console.log(data);
+			self.settingsViewModel.settings.plugins.rtmpstreamer.dynamic_layout.remove(data);
+			self.dynamic_layout(self.settingsViewModel.settings.plugins.rtmpstreamer.dynamic_layout());
+		};
+
 	}
 
 	ADDITIONAL_VIEWMODELS.push([
