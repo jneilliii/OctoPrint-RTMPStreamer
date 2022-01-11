@@ -6,6 +6,14 @@ $(function () {
 
 		self.dynamic_layout = ko.observableArray();
 		self.selected_layout = ko.observable();
+		self.imageFileName = ko.observable(undefined);
+		self.imageFileURL = ko.observable(undefined);
+		self.selectFilePath = undefined;
+
+		// Returns a list of file types to accept for upload
+		self.filterFileTypes = ko.computed(function() {
+			return '.png,.jpg,.jpeg';
+		});
 
 		self.stream_resolution = ko.observable();
 		self.view_url = ko.observable();
@@ -33,6 +41,24 @@ $(function () {
 		self.btnclass = ko.pureComputed(function() {
 										return self.streaming() ? 'btn-danger' : 'btn-primary';
 									});									
+
+		self.onStartup = function() {
+			self.selectFilePath = $("#settings_plugin_rtmpstreamer_selectFilePath");
+
+			self.selectFilePath.fileupload({
+				dataType: "binary",
+				maxNumberOfFiles: 1,
+				autoUpload: false,
+				add: function(e, data) {
+					if (data.files.length === 0) {
+						return false;
+					}
+
+					console.log(data);
+					self.imageFileName(data.files[0].name);
+				}
+			});
+		};
 
 		self.onBeforeBinding = function () {
 			self.stream_resolution(self.settingsViewModel.settings.plugins.rtmpstreamer.stream_resolution());
@@ -140,6 +166,30 @@ $(function () {
 					contentType: "application/json; charset=UTF-8"
 				})
 			}
+		};
+
+		self.uploadImage = function() {
+			$('#imageUploader').modal('show');
+		};
+
+		self.startUploadFromFile = function() {
+			if (!self.imageFileName()) {
+				alert = gettext("Image file is not specified");
+				return;
+			}
+
+			$('#imageUploader').modal('hide');
+			console.log(self.imageFileName());
+		};
+
+		self.startUploadFromURL = function() {
+			if (!self.imageFileURL()) {
+				alert = gettext("Image URL is not specified");
+				return;
+			}
+
+			$('#imageUploader').modal('hide');
+			console.log(self.imageFileURL());
 		};
 
 		self.rmImage = function(file) {

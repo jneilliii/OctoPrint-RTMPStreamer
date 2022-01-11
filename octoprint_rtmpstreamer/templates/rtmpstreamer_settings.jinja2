@@ -135,7 +135,8 @@
         <div class="controls">
             <div class="input-append">
                 <select data-bind="options: overlay_files, value: settingsViewModel.settings.plugins.rtmpstreamer.overlay_file"></select>
-                <button class="btn btn-primary" data-bind="enable: settingsViewModel.settings.plugins.rtmpstreamer.overlay_file() != '{{ plugin_rtmpstreamer_overlay_file_default }}', click: function() { rmImage(settingsViewModel.settings.plugins.rtmpstreamer.overlay_file()); return true; }">Delete</button>
+                <button class="btn icon-plus" data-bind="click: uploadImage"></button>
+                <button class="btn btn-danger icon-trash" data-bind="enable: settingsViewModel.settings.plugins.rtmpstreamer.overlay_file() != '{{ plugin_rtmpstreamer_overlay_file_default }}', click: function() { rmImage(settingsViewModel.settings.plugins.rtmpstreamer.overlay_file()); return true; }"></button>
             </div>
         </div>
     </div>
@@ -285,6 +286,40 @@
         </div>
     </div>
 </form>
+</div>
+
+<div id="imageUploader" class="modal hide fade">
+    <div class="modal-header">
+        <a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
+        <h3>Overlay/Watermark Image Uploader</h3>
+    </div>
+
+    <div class="modal-body">
+        <div class="control-group">
+            <label class="control-label">{{ _('... from file') }}</label>
+            <div class="controls">
+                <div class="input-append">
+                    <span class="btn input-group-btn fileinput-button">{{ _('Browse...') }}
+                        <input id="settings_plugin_rtmpstreamer_selectFilePath" type="file" name="file" data-bind="attr: { accept: filterFileTypes }"/>
+                    </span>
+                    <input class="input" type="text" data-bind="value: imageFileName" disabled/>
+                    <button class="btn btn-primary" data-bind="click: startUploadFromFile, enable: imageFileName, css: {disabled: !imageFileName()}">{{ _('Upload from File') }}</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">{{ _('... from URL') }}</label>
+            <div class="controls">
+                <div class="input-append">
+                    <input class="input" type="text" data-bind="value: imageFileURL, valueUpdate: 'afterkeydown'">
+                    <button class="btn btn-primary" data-bind="click: startUploadFromURL, enable: imageFileURL, css: {disabled: !imageFileURL()}">{{ _('Upload from URL') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer"></div>
 </div>
 
 <div id="DynamicInfoEditor" data-bind="with: selected_layout" class="modal hide fade">

@@ -166,7 +166,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 
     ##~~ SimpleApiPlugin
     def get_api_commands(self):
-        return dict(startStream=[], stopStream=[], checkStream=[], removeImage=[])
+        return dict(startStream=[], stopStream=[], checkStream=[], removeImage=[], uploadImage=[])
 
     def on_api_command(self, command, data):
         if not user_permission.can():
@@ -187,6 +187,9 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
     def on_api_get(self, request):
         if request.args.get("removeImage"):
             self.removeImage(request.args.get("removeImage"))
+            return flask.jsonify(self.getImageList())
+        if request.args.get("uploadImage"):
+            self.saveImage(request.args.get("uploadImage"))
             return flask.jsonify(self.getImageList())
 
     ##~~ General Functions
