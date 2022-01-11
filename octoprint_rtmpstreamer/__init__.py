@@ -303,6 +303,9 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 
         # Get the current printer data
         current_data = self._printer.get_current_data()
+        self._logger.debug(current_data)
+        current_job = self._printer.get_current_job()
+        self._logger.debug(current_job)
         current_temps = self._printer.get_current_temperatures()
 
         # name, path, size, origin, date
@@ -368,10 +371,10 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 
             txtval = txt.format(
                 filename = fileInfo["name"],
-                estimatedprinttime = estimatedPrintTime,
-                percdone = jobInfo["completion"],
-                printtime = jobInfo["printTime"],
-                timeleft = jobInfo["printTimeLeft"],
+                estimatedprinttime = self.convertSeconds(int(estimatedPrintTime)) if estimatedPrintTime else "...",
+                percdone = "{:.2f}".format(jobInfo["completion"]),
+                printtime = self.convertSeconds(int(jobInfo["printTime"])) if jobInfo["printTime"] else "...",
+                timeleft = self.convertSeconds(int(jobInfo["printTimeLeft"])) if jobInfo["printTimeLeft"] else "...",
                 bedtemp = temps["bed"]["actual"],
                 bedtarget = temps["bed"]["target"],
                 chambertemp = temps["chamber"]["actual"],
@@ -460,6 +463,13 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
                 pip="https://github.com/jneilliii/OctoPrint-RTMPStreamer/archive/{target_version}.zip"
             )
         )
+
+    def convertSeconds(self, seconds):
+        h = seconds//(60*60)
+        m = (seconds-h*60*60)//60
+        s = seconds-(h*60*60)-(m*60)
+
+        return "{:02}:{:02}:{:02}".format(h, m, s)
 
 
 __plugin_name__ = "RTMP Streamer"
