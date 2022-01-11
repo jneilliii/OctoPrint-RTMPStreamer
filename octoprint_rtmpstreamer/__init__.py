@@ -345,7 +345,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
                 fontname = quadrant["font"]
             fontsize = 24
             if quadrant["size"]:
-                fontsize = quadrant["size"]
+                fontsize = int(quadrant["size"])
 
             try:
                 font = ImageFont.truetype(self._basefolder + "/static/fonts/" + fontname, fontsize)
