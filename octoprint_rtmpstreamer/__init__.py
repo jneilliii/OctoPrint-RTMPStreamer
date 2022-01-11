@@ -14,6 +14,7 @@ import docker
 import shlex
 import shutil
 import subprocess
+import flask
 
 
 class rtmpstreamer(octoprint.plugin.StartupPlugin,
@@ -91,7 +92,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
             overlay_style = "wm_br",
             overlay_padding = 10,
             overlay_file = self.overlay_image_default,
-            overlay_files = [ f for f in os.listdir(self._basefolder + "/static/img/") if os.path.isfile(self._basefolder + "/static/img/" + f)],
+            overlay_files = self.getImageList(),
             streaming = False,
             auto_start = False,
             auto_start_on_power_up=False,
@@ -165,7 +166,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 
     ##~~ SimpleApiPlugin
     def get_api_commands(self):
-        return dict(startStream=[], stopStream=[], checkStream=[])
+        return dict(startStream=[], stopStream=[], checkStream=[], removeImage=[])
 
     def on_api_command(self, command, data):
         if not user_permission.can():
@@ -182,6 +183,11 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
         if command == 'checkStream':
             self._logger.info("Checking stream status.")
             self._check_stream()
+
+    def on_api_get(self, request):
+        if request.args.get("removeImage"):
+            self.removeImage(request.args.get("removeImage"))
+            return flask.jsonify(self.getImageList())
 
     ##~~ General Functions
     def _start_stream(self):
@@ -471,6 +477,17 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
         s = seconds-(h*60*60)-(m*60)
 
         return "{:02}:{:02}:{:02}".format(h, m, s)
+
+    def getImageList(self):
+        return [ f for f in os.listdir(self._basefolder + "/static/img/") if os.path.isfile(self._basefolder + "/static/img/" + f)]
+
+    def saveImage(self, file, data):
+        return
+
+    def removeImage(self, file):
+        if os.path.exists(self._basefolder + "/static/img/" + file):
+            os.remove(self._basefolder + "/static/img/" + file);
+        return
 
 
 __plugin_name__ = "RTMP Streamer"

@@ -152,7 +152,16 @@ $(function () {
 		};
 
 		self.doRmImage = function(file) {
-			alert("TODO");
+			$.ajax({
+				url: API_BASEURL + "plugin/rtmpstreamer",
+				type: "GET",
+				dataType: "json",
+				data: {removeImage:file},
+				contentType: "application/json; charset=UTF-8"
+			}).done(function(data){
+				console.log(data);
+				self.overlay_files(data);
+			});
                 };
 
 		self.addInfo = function(data) {
