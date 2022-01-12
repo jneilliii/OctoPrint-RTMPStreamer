@@ -41,7 +41,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
         self.frame_rate_default = 5
         self.stream_resolution_default = "640x480"
         self.ffmpeg_cmd_default = (
-            "{ffmpeg} -re -f mjpeg -framerate {frame_rate} -i {webcam_url} {overlay_cmd} "                                                                   # Video input
+            "{ffmpeg} -re -f mjpeg -framerate {frame_rate} -i {webcam_url} {overlay_cmd} "                                 # Video input
             "-ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i /dev/zero "                                               # Audio input
             "-acodec aac -ab 128k "                                                                                        # Audio output
             "-s {stream_resolution} -vcodec {videocodec} -threads {threads} -pix_fmt yuv420p -framerate {frame_rate} -g {gop_size} -vb {bitrate} -strict experimental {filter} " # Video output
@@ -132,7 +132,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             docker_container = self.docker_container_default,
             ffmpeg_cmd = self.ffmpeg_cmd_default,
             frame_rate = self.frame_rate_default,
-            stream_bitrate = "700k",
+            stream_bitrate = "400k",
             ffmpeg_threads = 1,
             ffmpeg_codec = "libx264",
 
@@ -434,7 +434,9 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
             draw.text((loc_x, loc_y), txtval, color, font = font)
 
-        img.save("/tmp/overlay.png", "PNG")
+        img.save("/tmp/tmp_overlay.png", "PNG")
+        # this is important, ffmpeg only works if you use move
+        shutil.move("/tmp/tmp_overlay.png", "/tmp/overlay.png")
 
     def _stop_stream(self):
         self._get_container()
