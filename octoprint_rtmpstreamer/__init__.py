@@ -17,8 +17,12 @@ import shutil
 import subprocess
 import flask
 
+import octoprint.server.util.flask
+from octoprint.server import admin_permission, NO_CONTENT
 
-class rtmpstreamer(octoprint.plugin.StartupPlugin,
+
+class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
+                   octoprint.plugin.StartupPlugin,
                    octoprint.plugin.TemplatePlugin,
                    octoprint.plugin.AssetPlugin,
                    octoprint.plugin.SettingsPlugin,
@@ -45,6 +49,32 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
         self.overlay_image_default = "jneilliii.png"
         self.docker_image_default = "kolisko/rpi-ffmpeg:latest"
         self.docker_container_default = "RTMPStreamer"
+
+    ##~~ BluePrint API
+    @octoprint.plugin.BlueprintPlugin.route("/rtmpstreamer_upload", methods=["POST"])
+    @octoprint.server.util.flask.restricted_access
+    @octoprint.server.admin_permission.require(403)
+    def upload_file(self):
+        value_source = flask.request.json if flask.request.json else flask.request.values
+
+        input_name = "file"
+        input_upload_path = input_name + "." + self._settings.global_get(["server", "uploads", "pathSuffix"])
+        input_upload_file = input_name + ".name"
+
+        if input_upload_path in flask.request.values:
+            uploaded_file = flask.request.values[input_upload_path]
+            file = os.path.basename(flask.request.values[input_upload_file])
+
+            try:
+                shutil.move(os.path.abspath(uploaded_file), self._basefolder + "/static/img/" + file)
+            except:
+                error_message = "Error while copying the uploaded file"
+                self._logger.exception(error_message)
+                return flask.make_response(error_message, 500)
+        else:
+            return flask.make_response("File to save failed to save", 400)
+
+        return flask.make_response(NO_CONTENT)
 
     ##~~ StartupPlugin
     def on_startup(self, host, port):
@@ -167,7 +197,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 
     ##~~ SimpleApiPlugin
     def get_api_commands(self):
-        return dict(startStream=[], stopStream=[], checkStream=[], removeImage=[], uploadImageFile=[], uploadImageURL=[])
+        return dict(startStream=[], stopStream=[], checkStream=[], removeImage=[], updateImages=[], uploadImageURL=[])
 
     def on_api_command(self, command, data):
         if not user_permission.can():
@@ -189,9 +219,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
         if request.args.get("removeImage"):
             self.removeImage(request.args.get("removeImage"))
             return flask.jsonify(self.getImageList())
-        if request.args.get("uploadImageFile"):
-            self._logger.info(request.args.get("uploadImageFile"))
-            #self.saveImage(request.args.get("uploadImageFile"))
+        if request.args.get("updateImages"):
             return flask.jsonify(self.getImageList())
         if request.args.get("uploadImageURL"):
             self.fetchImageURL(request.args.get("uploadImageURL"))
@@ -498,9 +526,6 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
             err = "{} fetching {}".format(e, url)
             self._logger.error(err)
             self._plugin_manager.send_plugin_message(self._identifier, dict(error=err))
-
-    def saveImage(self, file, data):
-        return
 
     def removeImage(self, file):
         if os.path.exists(self._basefolder + "/static/img/" + file):

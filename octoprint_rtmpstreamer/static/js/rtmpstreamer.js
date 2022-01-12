@@ -23,24 +23,24 @@ $(function () {
 		self.processing = ko.observable(false);
 		self.overlay_files = ko.observableArray([]);
 		self.icon = ko.pureComputed(function() {
-										var icons = [];
-										if (self.streaming() && !self.processing()) {
-											icons.push('icon-stop');
-										} 
-										
-										if (!self.streaming() && !self.processing()){
-											icons.push('icon-play');
-										}
-										
-										if (self.processing()) {
-											icons.push('icon-spin icon-spinner');
-										} 
-										
-										return icons.join(' ');
-									});
+			var icons = [];
+			if (self.streaming() && !self.processing()) {
+				icons.push('icon-stop');
+			} 
+
+			if (!self.streaming() && !self.processing()){
+				icons.push('icon-play');
+			}
+
+			if (self.processing()) {
+				icons.push('icon-spin icon-spinner');
+			} 
+
+			return icons.join(' ');
+		});
 		self.btnclass = ko.pureComputed(function() {
-										return self.streaming() ? 'btn-danger' : 'btn-primary';
-									});									
+			return self.streaming() ? 'btn-danger' : 'btn-primary';
+		});
 
 		self.onStartup = function() {
 			self.selectFilePath = $("#settings_plugin_rtmpstreamer_selectFilePath");
@@ -69,23 +69,23 @@ $(function () {
 		};
 
 		self.onEventSettingsUpdated = function (payload) {            
-            self.stream_resolution(self.settingsViewModel.settings.plugins.rtmpstreamer.stream_resolution());
+			self.stream_resolution(self.settingsViewModel.settings.plugins.rtmpstreamer.stream_resolution());
 			// self.view_url(self.settingsViewModel.settings.plugins.rtmpstreamer.view_url());
 			self.stream_url(self.settingsViewModel.settings.plugins.rtmpstreamer.stream_url());
 			self.auto_start(self.settingsViewModel.settings.plugins.rtmpstreamer.auto_start());
 			self.overlay_files(self.settingsViewModel.settings.plugins.rtmpstreamer.overlay_files());
-        };
+        	};
 		
 		self.onAfterBinding = function() {
 			$.ajax({
-					url: API_BASEURL + "plugin/rtmpstreamer",
-					type: "POST",
-					dataType: "json",
-					data: JSON.stringify({
-						command: "checkStream"
-					}),
-					contentType: "application/json; charset=UTF-8"
-				})
+				url: API_BASEURL + "plugin/rtmpstreamer",
+				type: "POST",
+				dataType: "json",
+				data: JSON.stringify({
+					command: "checkStream"
+				}),
+				contentType: "application/json; charset=UTF-8"
+			})
 		}
 		
 		self.onTabChange = function(next, current) {
@@ -106,29 +106,29 @@ $(function () {
 			
 			if(data.error) {
 				new PNotify({
-							title: 'RTMP Streamer Error',
-							text: data.error,
-							type: 'error',
-							hide: false,
-							buttons: {
-								closer: true,
-								sticker: false
-							}
-							});
+					title: 'RTMP Streamer Error',
+					text: data.error,
+					type: 'error',
+					hide: false,
+					buttons: {
+						closer: true,
+						sticker: false
+					}
+				});
 			}
 
 			if(data.success) {
 				new PNotify({
-							title: 'RTMP Streamer',
-							text: data.success,
-							type: 'success',
-							hide: true,
-							delay: 6000,
-							buttons: {
-								closer: true,
-								sticker: false
-							}
-							});
+					title: 'RTMP Streamer',
+					text: data.success,
+					type: 'success',
+					hide: true,
+					delay: 6000,
+					buttons: {
+						closer: true,
+						sticker: false
+					}
+				});
 			}
 			
 			if(data.status) {
@@ -141,7 +141,7 @@ $(function () {
 			}
 			
 			self.processing(false);
-        };
+        	};
 		
 		self.toggleStream = function() {
 			self.processing(true);
@@ -172,7 +172,7 @@ $(function () {
 			$('#imageUploader').modal('show');
 		};
 
-		self.startUploadFromFile = function() {
+		self.startUploadFromFile = async function() {
 			if (!self.imageFileName()) {
 				alert = gettext("Image file is not specified");
 				return;
@@ -180,7 +180,21 @@ $(function () {
 
 			$('#imageUploader').modal('hide');
 
-			self.fileData.submit();
+			await self.fileData.submit();
+
+			$.ajax({
+				url: API_BASEURL + "plugin/rtmpstreamer",
+				type: "GET",
+				dataType: "json",
+				data: {
+					updateImages: true
+				},
+				contentType: "application/json; charset=UTF-8"
+			}).done(function(data) {
+				if (data) {
+					self.overlay_files(data);
+				}
+			});
 		};
 
 		self.startUploadFromURL = function() {
@@ -259,9 +273,9 @@ $(function () {
 	}
 
 	ADDITIONAL_VIEWMODELS.push([
-			// This is the constructor to call for instantiating the plugin
-			rtmpstreamerViewModel,
-			["settingsViewModel"],
-			["#settings_plugin_rtmpstreamer", "#tab_plugin_rtmpstreamer"]
-		]);
+		// This is the constructor to call for instantiating the plugin
+		rtmpstreamerViewModel,
+		["settingsViewModel"],
+		["#settings_plugin_rtmpstreamer", "#tab_plugin_rtmpstreamer"]
+	]);
 });

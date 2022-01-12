@@ -300,7 +300,7 @@
             <div class="controls">
                 <div class="input-append">
                     <span class="btn input-group-btn fileinput-button">{{ _('Browse...') }}
-                        <input id="settings_plugin_rtmpstreamer_selectFilePath" type="file" name="file" data-bind="attr: { accept: filterFileTypes }"/>
+                        <input id="settings_plugin_rtmpstreamer_selectFilePath" type="file" name="file" data-bind="attr: { accept: filterFileTypes }" data-url="{{ url_for("plugin.rtmpstreamer.upload_file") }}"/>
                     </span>
                     <input class="input" type="text" data-bind="value: imageFileName" disabled/>
                     <button class="btn btn-primary" data-bind="click: startUploadFromFile, enable: imageFileName, css: {disabled: !imageFileName()}">{{ _('Upload from File') }}</button>
