@@ -10,6 +10,7 @@ import os
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
+import urllib
 import docker
 import shlex
 import shutil
@@ -166,7 +167,7 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
 
     ##~~ SimpleApiPlugin
     def get_api_commands(self):
-        return dict(startStream=[], stopStream=[], checkStream=[], removeImage=[], uploadImage=[])
+        return dict(startStream=[], stopStream=[], checkStream=[], removeImage=[], uploadImageFile=[], uploadImageURL=[])
 
     def on_api_command(self, command, data):
         if not user_permission.can():
@@ -188,8 +189,12 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
         if request.args.get("removeImage"):
             self.removeImage(request.args.get("removeImage"))
             return flask.jsonify(self.getImageList())
-        if request.args.get("uploadImage"):
-            self.saveImage(request.args.get("uploadImage"))
+        if request.args.get("uploadImageFile"):
+            self._logger.info(request.args.get("uploadImageFile"))
+            #self.saveImage(request.args.get("uploadImageFile"))
+            return flask.jsonify(self.getImageList())
+        if request.args.get("uploadImageURL"):
+            self.fetchImageURL(request.args.get("uploadImageURL"))
             return flask.jsonify(self.getImageList())
 
     ##~~ General Functions
@@ -484,13 +489,22 @@ class rtmpstreamer(octoprint.plugin.StartupPlugin,
     def getImageList(self):
         return [ f for f in os.listdir(self._basefolder + "/static/img/") if os.path.isfile(self._basefolder + "/static/img/" + f)]
 
+    def fetchImageURL(self, url):
+        try:
+            file = os.path.basename(url)
+            self._logger.info("Fetching {} and saving it to {}".format(url, file))
+            urllib.request.urlretrieve(url, self._basefolder + "/static/img/" + file)
+        except Exception as e:
+            err = "{} fetching {}".format(e, url)
+            self._logger.error(err)
+            self._plugin_manager.send_plugin_message(self._identifier, dict(error=err))
+
     def saveImage(self, file, data):
         return
 
     def removeImage(self, file):
         if os.path.exists(self._basefolder + "/static/img/" + file):
             os.remove(self._basefolder + "/static/img/" + file);
-        return
 
 
 __plugin_name__ = "RTMP Streamer"

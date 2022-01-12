@@ -54,7 +54,7 @@ $(function () {
 						return false;
 					}
 
-					console.log(data);
+					self.fileData = data;
 					self.imageFileName(data.files[0].name);
 				}
 			});
@@ -179,7 +179,8 @@ $(function () {
 			}
 
 			$('#imageUploader').modal('hide');
-			console.log(self.imageFileName());
+
+			self.fileData.submit();
 		};
 
 		self.startUploadFromURL = function() {
@@ -189,7 +190,20 @@ $(function () {
 			}
 
 			$('#imageUploader').modal('hide');
-			console.log(self.imageFileURL());
+
+			$.ajax({
+				url: API_BASEURL + "plugin/rtmpstreamer",
+				type: "GET",
+				dataType: "json",
+				data: {
+					uploadImageURL: self.imageFileURL()
+				},
+				contentType: "application/json; charset=UTF-8"
+			}).done(function(data) {
+				if (data) {
+					self.overlay_files(data);
+				}
+			});
 		};
 
 		self.rmImage = function(file) {
@@ -206,11 +220,14 @@ $(function () {
 				url: API_BASEURL + "plugin/rtmpstreamer",
 				type: "GET",
 				dataType: "json",
-				data: {removeImage:file},
+				data: {
+					removeImage: file
+				},
 				contentType: "application/json; charset=UTF-8"
-			}).done(function(data){
-				console.log(data);
-				self.overlay_files(data);
+			}).done(function(data) {
+				if (data) {
+					self.overlay_files(data);
+				}
 			});
                 };
 
