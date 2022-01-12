@@ -7,6 +7,9 @@ import octoprint.filemanager.storage
 from octoprint.server import user_permission
 import logging
 import os
+import io
+import sys
+import tempfile
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
@@ -31,6 +34,20 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
     def __init__(self):
         self._logger = logging.getLogger(__name__)
+
+        self.tmpdir = tempfile.gettempdir()
+        if sys.platform == "darwin":
+            self.platform = "darwin"
+        elif sys.platform == "win32":
+            self.platform = "win32"
+        else:
+            self.platform = "linux"
+            try:
+                with io.open('/sys/firmware/devicetree/base/model', 'r') as m:
+                    if 'raspberry pi' in m.read().lower():
+                        self.platform = "pi"
+                        self.tmpdir = "/dev/shm"
+            except Exception: pass
 
         self.client = None
         self.container = None
@@ -66,7 +83,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             file = os.path.basename(flask.request.values[input_upload_file])
 
             try:
-                shutil.move(os.path.abspath(uploaded_file), self.get_plugin_data_folder() + "/" + file)
+                shutil.move(os.path.abspath(uploaded_file), os.path.join(self.get_plugin_data_folder(), file))
             except:
                 error_message = "Error while copying the uploaded file"
                 self._logger.exception(error_message)
@@ -89,7 +106,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
     def on_after_startup(self):
         self._logger.info("OctoPrint-RTMPStreamer loaded! Checking stream status.")
-        shutil.copy(self._basefolder + "/static/img/" + self.overlay_image_default, self.get_plugin_data_folder())
+        shutil.copy(os.path.join(self._basefolder, "static", "img", self.overlay_image_default), self.get_plugin_data_folder())
         if self._settings.get(["use_docker"]):
             self._get_image()
         self._check_stream()
@@ -266,14 +283,15 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             gop_size = int(self._settings.get(["frame_rate"])) * 2
             overlay_cmd = ""
             if self._settings.get(["use_overlay"]):
-                if os.path.isfile(self.get_plugin_data_folder() + "/" + self._settings.get(["overlay_file"])):
+                if os.path.isfile(os.path.join(self.get_plugin_data_folder(), self._settings.get(["overlay_file"]))):
                     if self._settings.get(["use_dynamic_overlay"]):
                         self._build_overlay()
                     else:
-                        shutil.copy(self.get_plugin_data_folder() + "/" + self._settings.get(["overlay_file"]), "/tmp/overlay.png")
-                if os.path.isfile("/tmp/overlay.png"):
-                    overlay = Image.open("/tmp/overlay.png")
+                        shutil.copy(os.path.join(self.get_plugin_data_folder(), self._settings.get(["overlay_file"])), os.path.join(self.tempdir, "overlay.png"))
+                if os.path.isfile(os.path.join(self.tempdir, "overlay.png")):
+                    overlay = Image.open(os.path.join(self.tempdir, "overlay.png"))
                     overlay_width, overlay_height = overlay.size
+                    #FIXME is this a sane test? what about with docker?
                     #test stream before use, won't work unless ffprobe is available, ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 webcamstream
                     stream_width, stream_height = self._settings.get(["stream_resolution"]).split("x")
                     # Substitute vars in overlay command
@@ -288,9 +306,9 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                         overlay_height = overlay_height,
                         overlay_padding = self._settings.get(["overlay_padding"]))
                 if self._settings.get(["use_dynamic_overlay"]):
-                    overlay_cmd = "-pattern_type glob -loop 1 -r 30 -i \"/tmp/overlay*.png\" " + overlay_cmd
+                    overlay_cmd = "-pattern_type glob -loop 1 -r 30 -i \"" + os.path.joing(self.tempdir, "overlay") + "*.png\" " + overlay_cmd
                 else:
-                    overlay_cmd = "-i /tmp/overlay.png " + overlay_cmd
+                    overlay_cmd = "-i " + os.path.join(self.tempdir, "overlay.png") + " " + overlay_cmd
             ffmpeg_cli = "ffmpeg"
             if self._settings.global_get(["webcam", "ffmpeg"]):
                 ffmpeg_cli = self._settings.global_get(["webcam", "ffmpeg"])
@@ -311,13 +329,13 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                 if self._settings.get(["use_docker"]):
                     self._logger.info("Launching docker container '" + self._settings.get(["docker_container"]) + "':\n" + "|  " + stream_cmd)
                     self._get_client()
+                    # FIXME testing if this is required devices = ["/dev/vchiq"],
                     self.container = self.client.containers.run(
                         self._settings.get(["docker_image"]),
                         command = stream_cmd,
                         detach = True,
                         privileged = False,
-                        devices = ["/dev/vchiq"],
-                        volumes = {"/tmp/overlay.png": {"bind": "/tmp/overlay.png", "mode": "ro"}},
+                        volumes = {os.path.join(self.tempdir, "overlay.png"): {"bind": os.path.join(self.tempdir, "overlay.png"), "mode": "ro"}},
                         name = self._settings.get(["docker_container"]),
                         auto_remove = True,
                         network_mode = "host")
@@ -365,9 +383,9 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
         overlay_style = self._settings.get(["overlay_style"])
         padding = self._settings.get(["overlay_padding"])
         if overlay_style == "fs":
-            img = Image.open(self.get_plugin_data_folder() + "/" + self._settings.get(["overlay_file"]))
+            img = Image.open(os.path.join(self.get_plugin_data_folder(), self._settings.get(["overlay_file"])))
         else:
-            watermark = Image.open(self.get_plugin_data_folder() + "/" + self._settings.get(["overlay_file"]))
+            watermark = Image.open(os.path.join(self.get_plugin_data_folder(), self._settings.get(["overlay_file"])))
             wm_w, wm_h = watermark.size
             img_w, img_h = self._settings.get(["stream_resolution"]).split("x")
             img = Image.new('RGBA', (int(img_w), int(img_h)), (0, 0, 0, 0))
@@ -394,10 +412,10 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                 fontsize = int(quadrant["size"])
 
             try:
-                font = ImageFont.truetype(self._basefolder + "/static/fonts/" + fontname, fontsize)
+                font = ImageFont.truetype(os.path.join(self._basefolder, "static", "fonts", fontname), fontsize)
             except Exception as e:
                 self._logger.error("{} font not found: {}".format(fontname, e))
-                font = ImageFont.truetype(self._basefolder + "/static/fonts/times.ttf", fontsize)
+                font = ImageFont.truetype(os.path.join(self._basefolder,"static", "fonts", "times.ttf"), fontsize)
 
             loc_x = 10
             loc_y = 10
@@ -435,9 +453,9 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
             draw.text((loc_x, loc_y), txtval, color, font = font)
 
-        img.save("/tmp/tmp_overlay.png", "PNG")
+        img.save(os.path.join(self.tempdir, "tmp_overlay.png"), "PNG")
         # this is important, ffmpeg only works if you use move
-        shutil.move("/tmp/tmp_overlay.png", "/tmp/overlay.png")
+        shutil.move(os.path.join(self.tempdir, "tmp_overlay.png"), os.path.join(self.tempdir, "overlay.png"))
 
     def _stop_stream(self):
         self._get_container()
@@ -518,21 +536,21 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
         return "{:02}:{:02}:{:02}".format(h, m, s)
 
     def getImageList(self):
-        return [ f for f in os.listdir(self.get_plugin_data_folder()) if os.path.isfile(self.get_plugin_data_folder() + "/" + f)]
+        return [ f for f in os.listdir(self.get_plugin_data_folder()) if os.path.isfile(os.path.join(self.get_plugin_data_folder(), f))]
 
     def fetchImageURL(self, url):
         try:
             file = os.path.basename(url)
             self._logger.info("Fetching {} and saving it to {}".format(url, file))
-            urllib.request.urlretrieve(url, self.get_plugin_data_folder() + "/" + file)
+            urllib.request.urlretrieve(url, os.path.join(self.get_plugin_data_folder(), file))
         except Exception as e:
             err = "{} fetching {}".format(e, url)
             self._logger.error(err)
             self._plugin_manager.send_plugin_message(self._identifier, dict(error=err))
 
     def removeImage(self, file):
-        if os.path.exists(self.get_plugin_data_folder() + "/" + file):
-            os.remove(self.get_plugin_data_folder() + "/" + file);
+        if os.path.exists(os.path.join(self.get_plugin_data_folder(), file)):
+            os.remove(os.path.join(self.get_plugin_data_folder(), file));
 
 
 __plugin_name__ = "RTMP Streamer"
