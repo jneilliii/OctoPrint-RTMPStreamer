@@ -65,7 +65,19 @@ $(function () {
 			// self.view_url(self.settingsViewModel.settings.plugins.rtmpstreamer.view_url());
 			self.stream_url(self.settingsViewModel.settings.plugins.rtmpstreamer.stream_url());
 			self.auto_start(self.settingsViewModel.settings.plugins.rtmpstreamer.auto_start());
-			self.overlay_files(self.settingsViewModel.settings.plugins.rtmpstreamer.overlay_files());
+			$.ajax({
+				url: API_BASEURL + "plugin/rtmpstreamer",
+				type: "GET",
+				dataType: "json",
+				data: {
+					updateImages: true
+				},
+				contentType: "application/json; charset=UTF-8"
+			}).done(function(data) {
+				if (data) {
+					self.overlay_files(data);
+				}
+			});
 		};
 
 		self.onEventSettingsUpdated = function (payload) {            
@@ -73,7 +85,6 @@ $(function () {
 			// self.view_url(self.settingsViewModel.settings.plugins.rtmpstreamer.view_url());
 			self.stream_url(self.settingsViewModel.settings.plugins.rtmpstreamer.stream_url());
 			self.auto_start(self.settingsViewModel.settings.plugins.rtmpstreamer.auto_start());
-			self.overlay_files(self.settingsViewModel.settings.plugins.rtmpstreamer.overlay_files());
         	};
 		
 		self.onAfterBinding = function() {
