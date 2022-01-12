@@ -338,12 +338,11 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                 self._logger.info("Stream started successfully")
                 self._plugin_manager.send_plugin_message(self._identifier, dict(success="Stream started",status=True,streaming=True))
                 if self._settings.get(["use_dynamic_overlay"]):
+                    self._logger.info("Starting dynamic overlay loop")
                     self.dynamicInfo = octoprint.util.RepeatedTimer(int(self._settings.get(["dynamic_overlay_interval"])), self._build_overlay)
                     self.dynamicInfo.start()
 
     def _build_overlay(self):
-        self._logger.info("Building dynamic overlay")
-
         # Get the current printer data
         current_data = self._printer.get_current_data()
         self._logger.debug(current_data)
@@ -454,6 +453,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                     self.ffmpeg.terminate()
 
                 if self._settings.get(["use_dynamic_overlay"]):
+                    self._logger.info("Stopping dynamic overlay loop")
                     self.dynamicInfo.cancel()
                     self.dynamicInfo = None
             except Exception as e:
