@@ -66,7 +66,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             file = os.path.basename(flask.request.values[input_upload_file])
 
             try:
-                shutil.move(os.path.abspath(uploaded_file), self._basefolder + "/static/img/" + file)
+                shutil.move(os.path.abspath(uploaded_file), self.get_plugin_data_folder() + "/" + file)
             except:
                 error_message = "Error while copying the uploaded file"
                 self._logger.exception(error_message)
@@ -89,6 +89,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
     def on_after_startup(self):
         self._logger.info("OctoPrint-RTMPStreamer loaded! Checking stream status.")
+        shutil.copy(self._basefolder + "/static/img/" + self.overlay_image_default, self.get_plugin_data_folder())
         if self._settings.get(["use_docker"]):
             self._get_image()
         self._check_stream()
@@ -265,11 +266,11 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             gop_size = int(self._settings.get(["frame_rate"])) * 2
             overlay_cmd = ""
             if self._settings.get(["use_overlay"]):
-                if os.path.isfile(self._basefolder + "/static/img/" + self._settings.get(["overlay_file"])):
+                if os.path.isfile(self.get_plugin_data_folder() + "/" + self._settings.get(["overlay_file"])):
                     if self._settings.get(["use_dynamic_overlay"]):
                         self._build_overlay()
                     else:
-                        shutil.copy(self._basefolder + "/static/img/" + self._settings.get(["overlay_file"]), "/tmp/overlay.png")
+                        shutil.copy(self.get_plugin_data_folder() + "/" + self._settings.get(["overlay_file"]), "/tmp/overlay.png")
                 if os.path.isfile("/tmp/overlay.png"):
                     overlay = Image.open("/tmp/overlay.png")
                     overlay_width, overlay_height = overlay.size
@@ -364,9 +365,9 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
         overlay_style = self._settings.get(["overlay_style"])
         padding = self._settings.get(["overlay_padding"])
         if overlay_style == "fs":
-            img = Image.open(self._basefolder + "/static/img/" + self._settings.get(["overlay_file"]))
+            img = Image.open(self.get_plugin_data_folder() + "/" + self._settings.get(["overlay_file"]))
         else:
-            watermark = Image.open(self._basefolder + "/static/img/" + self._settings.get(["overlay_file"]))
+            watermark = Image.open(self.get_plugin_data_folder() + "/" + self._settings.get(["overlay_file"]))
             wm_w, wm_h = watermark.size
             img_w, img_h = self._settings.get(["stream_resolution"]).split("x")
             img = Image.new('RGBA', (int(img_w), int(img_h)), (0, 0, 0, 0))
@@ -517,21 +518,21 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
         return "{:02}:{:02}:{:02}".format(h, m, s)
 
     def getImageList(self):
-        return [ f for f in os.listdir(self._basefolder + "/static/img/") if os.path.isfile(self._basefolder + "/static/img/" + f)]
+        return [ f for f in os.listdir(self.get_plugin_data_folder()) if os.path.isfile(self.get_plugin_data_folder() + "/" + f)]
 
     def fetchImageURL(self, url):
         try:
             file = os.path.basename(url)
             self._logger.info("Fetching {} and saving it to {}".format(url, file))
-            urllib.request.urlretrieve(url, self._basefolder + "/static/img/" + file)
+            urllib.request.urlretrieve(url, self.get_plugin_data_folder() + "/" + file)
         except Exception as e:
             err = "{} fetching {}".format(e, url)
             self._logger.error(err)
             self._plugin_manager.send_plugin_message(self._identifier, dict(error=err))
 
     def removeImage(self, file):
-        if os.path.exists(self._basefolder + "/static/img/" + file):
-            os.remove(self._basefolder + "/static/img/" + file);
+        if os.path.exists(self.get_plugin_data_folder() + "/" + file):
+            os.remove(self.get_plugin_data_folder() + "/" + file);
 
 
 __plugin_name__ = "RTMP Streamer"
