@@ -31,6 +31,8 @@ http://192.168.1.101/webcam/?action=stream instead of /webcam/?action=stream
 * [X] Add Dynamic Overlay settings
 * [X] Add Dynamic Overlay build function
 * [ ] Add Dynamic Overlay profiles, with some pre builts as examples
+* [ ] Reload available files in the settings drop down when the settings page is loaded
+* [ ] Coords on a new Dynamic Setup line show 0,0 until the settings are reloaded, this shouldn't happen.
 
 ## Get Help
 
