@@ -287,9 +287,9 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                     if self._settings.get(["use_dynamic_overlay"]):
                         self._build_overlay()
                     else:
-                        shutil.copy(os.path.join(self.get_plugin_data_folder(), self._settings.get(["overlay_file"])), os.path.join(self.tempdir, "overlay.png"))
-                if os.path.isfile(os.path.join(self.tempdir, "overlay.png")):
-                    overlay = Image.open(os.path.join(self.tempdir, "overlay.png"))
+                        shutil.copy(os.path.join(self.get_plugin_data_folder(), self._settings.get(["overlay_file"])), os.path.join(self.tmpdir, "overlay.png"))
+                if os.path.isfile(os.path.join(self.tmpdir, "overlay.png")):
+                    overlay = Image.open(os.path.join(self.tmpdir, "overlay.png"))
                     overlay_width, overlay_height = overlay.size
                     #FIXME is this a sane test? what about with docker?
                     #test stream before use, won't work unless ffprobe is available, ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 webcamstream
@@ -306,9 +306,9 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                         overlay_height = overlay_height,
                         overlay_padding = self._settings.get(["overlay_padding"]))
                 if self._settings.get(["use_dynamic_overlay"]):
-                    overlay_cmd = "-pattern_type glob -loop 1 -r 30 -i \"" + os.path.joing(self.tempdir, "overlay") + "*.png\" " + overlay_cmd
+                    overlay_cmd = "-pattern_type glob -loop 1 -r 30 -i \"" + os.path.joing(self.tmpdir, "overlay") + "*.png\" " + overlay_cmd
                 else:
-                    overlay_cmd = "-i " + os.path.join(self.tempdir, "overlay.png") + " " + overlay_cmd
+                    overlay_cmd = "-i " + os.path.join(self.tmpdir, "overlay.png") + " " + overlay_cmd
             ffmpeg_cli = "ffmpeg"
             if self._settings.global_get(["webcam", "ffmpeg"]):
                 ffmpeg_cli = self._settings.global_get(["webcam", "ffmpeg"])
@@ -335,7 +335,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                         command = stream_cmd,
                         detach = True,
                         privileged = False,
-                        volumes = {os.path.join(self.tempdir, "overlay.png"): {"bind": os.path.join(self.tempdir, "overlay.png"), "mode": "ro"}},
+                        volumes = {os.path.join(self.tmpdir, "overlay.png"): {"bind": os.path.join(self.tmpdir, "overlay.png"), "mode": "ro"}},
                         name = self._settings.get(["docker_container"]),
                         auto_remove = True,
                         network_mode = "host")
@@ -453,9 +453,9 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
             draw.text((loc_x, loc_y), txtval, color, font = font)
 
-        img.save(os.path.join(self.tempdir, "tmp_overlay.png"), "PNG")
+        img.save(os.path.join(self.tmpdir, "tmp_overlay.png"), "PNG")
         # this is important, ffmpeg only works if you use move
-        shutil.move(os.path.join(self.tempdir, "tmp_overlay.png"), os.path.join(self.tempdir, "overlay.png"))
+        shutil.move(os.path.join(self.tmpdir, "tmp_overlay.png"), os.path.join(self.tmpdir, "overlay.png"))
 
     def _stop_stream(self):
         self._get_container()
