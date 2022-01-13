@@ -306,7 +306,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                         overlay_height = overlay_height,
                         overlay_padding = self._settings.get(["overlay_padding"]))
                 if self._settings.get(["use_dynamic_overlay"]):
-                    overlay_cmd = "-pattern_type glob -loop 1 -r 30 -i \"" + os.path.joing(self.tmpdir, "overlay") + "*.png\" " + overlay_cmd
+                    overlay_cmd = "-pattern_type glob -loop 1 -r 30 -i \"" + os.path.join(self.tmpdir, "overlay") + "*.png\" " + overlay_cmd
                 else:
                     overlay_cmd = "-i " + os.path.join(self.tmpdir, "overlay.png") + " " + overlay_cmd
             ffmpeg_cli = "ffmpeg"
