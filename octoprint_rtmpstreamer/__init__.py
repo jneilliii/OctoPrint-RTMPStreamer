@@ -419,9 +419,10 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
             loc_x = 10
             loc_y = 10
-            if quadrant["position"]:
-                loc_x = int(quadrant["position"][0])
-                loc_y = int(quadrant["position"][1])
+            if quadrant["posx"]:
+                loc_x = int(quadrant["posx"])
+            if quadrant["posy"]:
+                loc_y = int(quadrant["posy"])
             txt = "N/A"
             if quadrant["text"]:
                 txt = quadrant["text"]

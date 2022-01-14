@@ -258,7 +258,8 @@ $(function () {
 
 		self.addInfo = function(data) {
 			self.selected_layout({
-				position: ko.observableArray([0, 0]),
+				posx: ko.observable(0),
+				posx: ko.observable(0),
 				text: ko.observable(''),
 				font: ko.observable(''),
 				size: ko.observable(24),

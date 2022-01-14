@@ -183,7 +183,7 @@
                 <button class="btn btn-mini icon-plus" data-bind="click: $root.addInfo"></button>
                 <div class="row-fluid" style="min-height: 50px;" data-bind="foreach: settingsViewModel.settings.plugins.rtmpstreamer.dynamic_layout">
                     <div class="row-fluid" style="margin-bottom: 5px;">
-                        <div class="span2" data-bind="text: position()[0] + ', ' + position()[1]"></div>
+                        <div class="span2" data-bind="text: posx() + ',' + posy()"></div>
                         <div class="span3" data-bind="text: text"></div>
                         <div class="span1 btn-group" style="text-align: center; padding-top: 3px;"><button class="btn btn-mini icon-edit" data-bind="click: $root.editInfo"></button><button class="btn btn-mini btn-danger icon-trash" data-bind="click: $root.removeInfo"></button></div>
                     </div>
@@ -332,8 +332,8 @@
         <div class="controls">
             <label class="control-label">{{ _('Position') }}</label>
             <div class="control-group">
-                <input type="number" min="0" title="Enter x to place the text" data-bind="value: position()[0], attr: { max: $root.stream_resolution().split('x')[0] }" class="input-mini"/>
-                <input type="number" min="0" title="Enter y to place the text" data-bind="value: position()[1], attr: { max: $root.stream_resolution().split('x')[1] }" class="input-mini"/>
+                <input type="number" min="0" title="Enter x to place the text" data-bind="value: posx, attr: { max: $root.stream_resolution().split('x')[0] }" class="input-mini"/>
+                <input type="number" min="0" title="Enter y to place the text" data-bind="value: posy, attr: { max: $root.stream_resolution().split('x')[1] }" class="input-mini"/>
             </div>
         </div>
         <div class="controls">
