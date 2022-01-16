@@ -43,6 +43,8 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             self.platform = "darwin"
         elif sys.platform == "win32":
             self.platform = "win32"
+            # glob is only availabe on POSIX systems
+            self.use_dynamic_overlay = False
         else:
             self.platform = "linux"
             try:
@@ -122,10 +124,12 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             self._logger.info("Auto starting stream on start up.")
             self._start_stream()
 
-    # ~~ TemplatePlugin mixin
+        if self.platform == "win32":
+            # glob is only availabe on POSIX systems
+            self._logger.info("Forcing dynamic overlays to off as we aren't posix")
+            self._settings.set_boolean(["use_dynamic_overlay"], False)
 
-    def get_template_vars(self):
-        return {"plugin_version": self._plugin_version}
+    # ~~ TemplatePlugin mixin
 
     def get_template_configs(self):
         return [dict(type="settings", custom_bindings=True)]
@@ -136,13 +140,16 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             ffmpeg_cmd_default=self.ffmpeg_cmd_default,
             docker_image_default=self.docker_image_default,
             docker_container_default=self.docker_container_default,
-            overlay_file_default=self.overlay_image_default
+            overlay_file_default=self.overlay_image_default,
+            plugin_version=self._plugin_version
         )
 
     # ~~ SettingsPlugin mixin
 
     def get_settings_defaults(self):
         return dict(
+            platform=self.platform,
+
             # put your plugin's default settings here
             view_url="",
             stream_url="",
@@ -171,7 +178,9 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             frame_rate_default=self.frame_rate_default,
             ffmpeg_cmd_default=self.ffmpeg_cmd_default,
             docker_image_default=self.docker_image_default,
-            docker_container_default=self.docker_container_default
+            docker_container_default=self.docker_container_default,
+            overlay_file_default=self.overlay_image_default,
+            plugin_version=self._plugin_version
         )
 
     def get_settings_restricted_paths(self):
