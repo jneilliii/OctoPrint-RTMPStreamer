@@ -171,7 +171,7 @@
                          data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay">
                         <div class="controls">
                             <label class="control-label"><input class="input-checkbox" type="checkbox"
-                                                                data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay, enable: settingsViewModel.settings.plugins.rtmpstreamer.platform() != 'darwin'"/> {{ _('Dynamic Overlay') }}
+                                                                data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay, enable: settingsViewModel.settings.plugins.rtmpstreamer.platform() != 'win32'"/> {{ _('Dynamic Overlay') }}
                             </label>
                         </div>
                     </div>
