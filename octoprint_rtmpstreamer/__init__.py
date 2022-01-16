@@ -75,7 +75,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
     @octoprint.plugin.BlueprintPlugin.route("/rtmpstreamer_upload", methods=["POST"])
     @octoprint.server.util.flask.restricted_access
-    @octoprint.server.admin_permission.require(403)
+    @Permissions.PLUGIN_RTMPSTREAMER_CONTROL.require(403)
     def upload_file(self):
         value_source = flask.request.json if flask.request.json else flask.request.values
 
