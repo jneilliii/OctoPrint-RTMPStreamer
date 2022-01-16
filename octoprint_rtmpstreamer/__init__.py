@@ -63,9 +63,14 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
         self.frame_rate_default = 5
         self.stream_resolution_default = "640x480"
+        if self.platform == "win32":
+            audio_dev = "nul"
+        else:
+            audio_dev - "/dev/zero"
+
         self.ffmpeg_cmd_default = (
             "{ffmpeg} -re -f mjpeg -framerate {frame_rate} -i {webcam_url} {overlay_cmd} "  # Video input
-            "-ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i /dev/zero "  # Audio input
+            "-ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i " + audio_dev + " " # Audio input
             "-acodec aac -ab 128k "  # Audio output
             "-s {stream_resolution} -vcodec {videocodec} -threads {threads} -pix_fmt yuv420p -framerate {frame_rate} -g {gop_size} -vb {bitrate} -strict experimental {filter} "  # Video output
             "-f flv {stream_url}")  # Output stream
