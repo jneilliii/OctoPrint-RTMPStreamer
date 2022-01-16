@@ -126,7 +126,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
         if self.platform == "win32":
             # glob is only availabe on POSIX systems
-            self._logger.info("Forcing dynamic overlays to off")
+            self._logger.info("Forcing dynamic overlays to off as we aren't posix")
             self._settings.set_boolean(["use_dynamic_overlay"], False)
 
     # ~~ TemplatePlugin mixin
