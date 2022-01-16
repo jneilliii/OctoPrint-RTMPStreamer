@@ -136,7 +136,8 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             ffmpeg_cmd_default=self.ffmpeg_cmd_default,
             docker_image_default=self.docker_image_default,
             docker_container_default=self.docker_container_default,
-            overlay_file_default=self.overlay_image_default
+            overlay_file_default=self.overlay_image_default,
+            plugin_version=self._plugin_version
         )
 
     # ~~ SettingsPlugin mixin
