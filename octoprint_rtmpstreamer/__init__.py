@@ -66,7 +66,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
         if self.platform == "win32":
             audio_dev = "nul"
         else:
-            audio_dev - "/dev/zero"
+            audio_dev = "/dev/zero"
 
         self.ffmpeg_cmd_default = (
             "{ffmpeg} -re -f mjpeg -framerate {frame_rate} -i {webcam_url} {overlay_cmd} "  # Video input
