@@ -11,4 +11,18 @@
 	left: 0; 
 	width: 100%; 
 	height: 100%;
-} 
+}
+
+#settings_plugin_rtmpstreamer input.input-checkbox {
+	display: inline-block;
+	margin-bottom: 5px;
+	margin-top: 0;
+}
+
+#settings_plugin_rtmpstreamer .input-append .btn:first-child {
+	margin-left: 0;
+}
+
+#settings_plugin_rtmpstreamer textarea {
+	resize: vertical;
+}

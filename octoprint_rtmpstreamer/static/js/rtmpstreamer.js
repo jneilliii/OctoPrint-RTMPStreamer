@@ -62,7 +62,7 @@ $(function () {
 
 		self.onBeforeBinding = function () {
 			self.stream_resolution(self.settingsViewModel.settings.plugins.rtmpstreamer.stream_resolution());
-			// self.view_url(self.settingsViewModel.settings.plugins.rtmpstreamer.view_url());
+			self.view_url(self.settingsViewModel.settings.plugins.rtmpstreamer.view_url());
 			self.stream_url(self.settingsViewModel.settings.plugins.rtmpstreamer.stream_url());
 			self.auto_start(self.settingsViewModel.settings.plugins.rtmpstreamer.auto_start());
 			$.ajax({
@@ -82,7 +82,7 @@ $(function () {
 
 		self.onEventSettingsUpdated = function (payload) {            
 			self.stream_resolution(self.settingsViewModel.settings.plugins.rtmpstreamer.stream_resolution());
-			// self.view_url(self.settingsViewModel.settings.plugins.rtmpstreamer.view_url());
+			self.view_url(self.settingsViewModel.settings.plugins.rtmpstreamer.view_url());
 			self.stream_url(self.settingsViewModel.settings.plugins.rtmpstreamer.stream_url());
 			self.auto_start(self.settingsViewModel.settings.plugins.rtmpstreamer.auto_start());
         	};
@@ -96,8 +96,8 @@ $(function () {
 					command: "checkStream"
 				}),
 				contentType: "application/json; charset=UTF-8"
-			})
-		}
+			});
+		};
 		
 		self.onTabChange = function(next, current) {
 			if(next == '#tab_plugin_rtmpstreamer'){
@@ -108,7 +108,7 @@ $(function () {
 			} else {
 				self.view_url('');
 			}
-		}
+		};
 		
 		self.onDataUpdaterPluginMessage = function(plugin, data) {
 			if (plugin != "rtmpstreamer") {
@@ -259,7 +259,7 @@ $(function () {
 		self.addInfo = function(data) {
 			self.selected_layout({
 				posx: ko.observable(0),
-				posx: ko.observable(0),
+				posy: ko.observable(0),
 				text: ko.observable(''),
 				font: ko.observable(''),
 				size: ko.observable(24),
@@ -268,7 +268,7 @@ $(function () {
 			self.settingsViewModel.settings.plugins.rtmpstreamer.dynamic_layout.push(self.selected_layout());
 			self.dynamic_layout(self.settingsViewModel.settings.plugins.rtmpstreamer.dynamic_layout());
 			$('#DynamicInfoEditor').modal('show');
-		}
+		};
 
 		self.editInfo = function(data) {
 			console.log(data);
@@ -282,6 +282,13 @@ $(function () {
 			self.dynamic_layout(self.settingsViewModel.settings.plugins.rtmpstreamer.dynamic_layout());
 		};
 
+		self.copy_cmd_sub = function(data, elem) {
+			copyToClipboard(elem.target.text);
+		};
+
+		self.reset_ffmpg_cmd = function() {
+			self.settingsViewModel.settings.plugins.rtmpstreamer.ffmpeg_cmd($("#default_ffmpeg_cmd").text());
+		};
 	}
 
 	ADDITIONAL_VIEWMODELS.push([

@@ -1,425 +1,500 @@
-<h3>RTMP Streamer Settings</h3>
-<form class="form-horizontal">
-    <h4>Streamer Settings</h4>
-    <div class="stream_additional">
-        <div><small><a href="#" class="muted" data-bind="toggleContent: { class: 'fa-caret-right fa-caret-down', parent: '.stream_additional', container: '.hide' }"><i class="fa fa-caret-right"></i> Additional Information</a></small></div>
-        <div class="hide">
-            <table class="table table-striped table-condensed table-fit">
-                <caption>More on "Stream Server URL"</caption>
-                <thead>
-                <tr>
-                    <th style="width: 100px">Service</th>
-                    <th>Example URL</th>
-                </tr>
-                </thead>
-                <tr>
-                    <td>YouTube Live</td>
-                    <td><a href="https://www.youtube.com/live_dashboard" target="_blank" rel="noopener">Live Streaming Dashboard</a><br>
-                    rtmp://a.rtmp.youtube.com/live2/xxxx-xxxx-xxxx-xxxx</td>
-                </tr>
-                <tr>
-                    <td>Twitch</td>
-                    <td><a href="https://www.twitch.tv/dashboard/settings" target="_blank" rel="noopener">Channel Dashboard</a><br>
-                    rtmp://live.twitch.tv/app/live_xxxxxxxxx_xxxxxxxxxx</td>
-                </tr>
-            </table>
-        </div>
-    </div>
-    <div class="control-group">
-        <label class="control-label">{{ _('Stream Server URL') }}</label>
-        <div class="controls">
-            <input type="text" class="input-block-level" data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.stream_url" placeholder="Enter url to post stream to.">
-        </div>
-    </div>
-    <div class="control-group">
-        <label class="control-label">{{ _('Stream Resolution') }}</label>
-        <div class="controls">
-            <input type="text" class="input-block-level" data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.stream_resolution" placeholder="Resolution to stream at.">
-        </div>
-    </div>
-    <div class="control-group">
-        <label class="control-label">{{ _('Stream Frame Rate') }}</label>
-        <div class="controls">
-            <div class="input-append">
-                <input type="number" class="input-mini" min="1" max="60" data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.frame_rate">
-                <span class="add-on">fps</span>
-            </div>
-            <span class="help-block">The OctoPrint webcam frame rate (default: {{ plugin_rtmpstreamer_frame_rate_default | escape }} fps).</span>
-        </div>
-    </div>
-    <div class="control-group">
-        <label class="control-label">{{ _('Stream While Printing') }}</label>
-        <div class="controls">
-            <input class="input-checkbox" type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.auto_start"/>
-        </div>
-    </div>
-    <div class="control-group">
-        <label class="control-label">{{ _('Stream On Startup') }}</label>
-        <div class="controls">
-            <input class="input-checkbox" type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.auto_start_on_power_up"/>
-        </div>
-    </div>
-</form>
-<div data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.stream_url().length > 0">
-<form class="form-horizontal">
-    <h4>Viewer Settings</h4>
-    <div class="viewer_additional">
-        <div><small><a href="#" class="muted" data-bind="toggleContent: { class: 'fa-caret-right fa-caret-down', parent: '.viewer_additional', container: '.hide' }"><i class="fa fa-caret-right"></i> Additional Information</a></small></div>
-        <div class="hide">
-            <table class="table table-striped table-condensed table-fit">
-                <caption>More on "Viewer Embed URL"</caption>
-                <thead>
-                <tr>
-                    <th style="width: 100px">Service</th>
-                    <th>Example URL</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>YouTube Live</td>
-                    <td>https://www.youtube.com/embed/live_stream?channel=CHANNEL_ID<br>
-                    <a href="http://www.youtube.com/account_advanced" target="_blank" rel="noopener">Advanced Account Settings</a></td>
-                </tr>
-                <tr>
-                    <td>Twitch</td>
-                    <td>https://player.twitch.tv/?channel=USERNAME&parent=FQDN&autoplay=false&muted=true</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="control-group">
-        <label class="control-label">{{ _('Viewer Embed URL') }}</label>
-        <div class="controls">
-            <input type="text" class="input-block-level" data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.view_url" placeholder="Enter url to watch stream from.">
-        </div>
-    </div>
-</form>
-<form class="form-horizontal">
-    <h4>Docker Settings</h4>
-    <div class="control-group" title="Use docker">
-        <div class="controls">
-            <label class="checkbox">
-                <input type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.use_docker"> Use Docker
-            </label>
-        </div>
-    </div>
-    <div data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_docker">
-        <h5>To use docker, manually install docker on the octoprint system and make sure the image you select had ffmpeg on it for the native architecture of that system</h5>
-        <div class="control-group">
-            <label class="control-label">{{ _('Docker Image') }}</label>
-            <div class="controls">
-                <input type="text" class="input-block-level" data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.docker_image">
-                <span class="help-block">The name and tag of the Docker image to use (default: {{ plugin_rtmpstreamer_docker_image_default | escape }}).</span>
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label">{{ _('Docker Container') }}</label>
-            <div class="controls">
-                <input type="text" class="input-block-level" data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.docker_container">
-                <span class="help-block">The name given to the running Docker container (default: {{ plugin_rtmpstreamer_docker_container_default | escape }}).</span>
-            </div>
-        </div>
-    </div>
-</form>
-<form class="form-horizontal">
-    <h4>FFMPEG Settings</h4>
-    <div class="control-group">
-        <label class="control-label">{{ _('Use An Overlay') }}</label>
-        <div class="controls">
-            <input class="input-checkbox" type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay"/>
-        </div>
-    </div>
-    <div class="control-group" data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay">
-        <label class="control-label">{{ _('Overlay Image') }}</label>
-        <div class="controls">
-            <div class="input-append">
-                <select data-bind="options: overlay_files, value: settingsViewModel.settings.plugins.rtmpstreamer.overlay_file"></select>
-                <button class="btn icon-plus" data-bind="click: uploadImage"></button>
-                <button class="btn btn-danger icon-trash" data-bind="enable: settingsViewModel.settings.plugins.rtmpstreamer.overlay_file() != '{{ plugin_rtmpstreamer_overlay_file_default }}', click: function() { rmImage(settingsViewModel.settings.plugins.rtmpstreamer.overlay_file()); return true; }"></button>
-            </div>
-        </div>
-    </div>
-    <div class="control-group" data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay">
-        <label class="control-label">{{ _('Overlay Style') }}</label>
-        <div class="controls">
-            <select data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.overlay_style">
-                <option value="fs">Fullscreen</option>
-                <option value="wm_br">Watermark (bottom right)</option>
-                <option value="wm_bl">Watermark (bottom left)</option>
-                <option value="wm_tr">Watermark (top right)</option>
-                <option value="wm_tl">Watermark (top left)</option>
-            </select>
-        </div>
-    </div>
-    <div class="control-group" data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay() && settingsViewModel.settings.plugins.rtmpstreamer.overlay_style() != 'fs'">
-        <label class="control-label">{{ _('Watermark Padding') }}</label>
-        <div class="controls">
-            <div class="input-append">
-                <input type="number" class="input-mini" min="0" max="1024" data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.overlay_padding">
-                <span class="add-on">px</span>
-            </div>
-        </div>
-    </div>
-    <div class="control-group" data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay">
-        <label class="control-label">{{ _('Dynamic Overlay') }}</label>
-        <div class="controls">
-            <input class="input-checkbox" type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay"/>
-        </div>
-    </div>
-    <div class="control-group" data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay">
-        <label class="control-label">{{ _('Dynamic Interval') }}</label>
-        <div class="controls">
-            <div class="input-append">
-                <input class="input-mini" type="number" min="1" max="60" data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.dynamic_overlay_interval"/>
-                <span class="add-on">seconds</span>
-            </div>
-        </div>
-    </div>
-    <div data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay">
-        <div class="control-group" data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay">
-            <label class="control-label">{{ _('Dynamic Setup') }}</label>
-            <div class="controls">
-                <button class="btn btn-mini icon-plus" data-bind="click: $root.addInfo"></button>
-                <div class="row-fluid" style="min-height: 50px;" data-bind="foreach: settingsViewModel.settings.plugins.rtmpstreamer.dynamic_layout">
-                    <div class="row-fluid" style="margin-bottom: 5px;">
-                        <div class="span2" data-bind="text: posx() + ',' + posy()"></div>
-                        <div class="span3" data-bind="text: text"></div>
-                        <div class="span1 btn-group" style="text-align: center; padding-top: 3px;"><button class="btn btn-mini icon-edit" data-bind="click: $root.editInfo"></button><button class="btn btn-mini btn-danger icon-trash" data-bind="click: $root.removeInfo"></button></div>
+<h3>RTMP Streamer Settings <small>{{ _('Version') }}: {{ plugin_rtmpstreamer_plugin_version }}</small></h3>
+<form class="form-vertical">
+    <ul class="nav nav-tabs" id="bedlevelvisualizer_tabs">
+        <li class="active"><a data-toggle="tab" href="#rtmpsteamer_streamer_settings">Streamer Settings</a></li>
+        <li><a data-toggle="tab" href="#rtmpsteamer_viewer_settings">Viewer Settings</a></li>
+        <li><a data-toggle="tab" href="#rtmpsteamer_ffmpeg">FFMPEG</a></li>
+        <li><a data-toggle="tab" href="#rtmpsteamer_docker">Docker</a></li>
+    </ul>
+    <div class="tab-content">
+        <div id="rtmpsteamer_streamer_settings" class="tab-pane active">
+            <div class="control-group">
+                <label class="control-label">{{ _('Stream Server URL') }}</label>
+                <div class="controls">
+                    <input type="text" class="input-block-level"
+                           data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.stream_url"
+                           placeholder="Enter url to post stream to.">
+                    <div class="stream_additional">
+                        <div><small><a href="#" class="muted"
+                                       data-bind="toggleContent: { class: 'fa-caret-right fa-caret-down', parent: '.stream_additional', container: '.hide' }"><i
+                                class="fa fa-caret-right"></i> Additional Information</a></small></div>
+                        <div class="hide">
+                            <table class="table table-striped table-condensed table-fit">
+                                <thead>
+                                <tr>
+                                    <th style="width: 100px">Service</th>
+                                    <th>Example URL</th>
+                                </tr>
+                                </thead>
+                                <tr>
+                                    <td>YouTube Live</td>
+                                    <td><a href="https://www.youtube.com/live_dashboard" target="_blank" rel="noopener">Live
+                                        Streaming Dashboard</a><br>
+                                        rtmp://a.rtmp.youtube.com/live2/xxxx-xxxx-xxxx-xxxx
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Twitch</td>
+                                    <td><a href="https://www.twitch.tv/dashboard/settings" target="_blank"
+                                           rel="noopener">Channel Dashboard</a><br>
+                                        rtmp://live.twitch.tv/app/live_xxxxxxxxx_xxxxxxxxxx
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="ffmpeg_advanced">
-        <div><small><a href="#" class="muted" data-bind="toggleContent: { class: 'fa-caret-right fa-caret-down', parent: '.ffmpeg_advanced', container: '.hide' }"><i class="fa fa-caret-right"></i> Advanced Options</a></small></div>
-        <div class="hide">
-            <div class="control-group" title="Debug FFMPEG" data-bind="hidden: settingsViewModel.settings.plugins.rtmpstreamer.use_docker">
+            <div class="control-group">
+                <label class="control-label">{{ _('Stream Resolution') }}</label>
                 <div class="controls">
-                    <label class="checkbox">
-                        <input type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.debug_ffmpeg"> Debug FFMPEG
-                    </label>
-                    <span class="help-block">Debug FFMPEG does not work with Docker</span>
+                    <input type="text" class="input-block-level"
+                           data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.stream_resolution"
+                           placeholder="Resolution to stream at.">
                 </div>
             </div>
             <div class="control-group">
-                <label class="control-label">{{ _('Stream Bit Rate') }}</label>
+                <label class="control-label">{{ _('Stream Frame Rate') }}</label>
                 <div class="controls">
                     <div class="input-append">
-                        <input type="text" class="input-mini" data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.stream_bitrate">
-                        <span class="add-on">bit/s</span>
+                        <input type="number" class="input-mini" min="1" max="60"
+                               data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.frame_rate">
+                        <span class="add-on">fps</span>
+                    </div>
+                    <span class="help-block">The OctoPrint webcam frame rate (default: {{ plugin_rtmpstreamer_frame_rate_default | escape }} fps).</span>
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <label class="control-label"><input class="input-checkbox" type="checkbox"
+                                                        data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.auto_start"/> {{ _('Stream While Printing') }}
+                    </label>
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <label class="control-label"><input class="input-checkbox" type="checkbox"
+                                                        data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.auto_start_on_power_up"/> {{ _('Stream On Startup') }}
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div id="rtmpsteamer_viewer_settings" class="tab-pane"
+             data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.stream_url().length > 0">
+            <div class="control-group">
+                <label class="control-label">{{ _('Viewer Embed URL') }}</label>
+                <div class="controls">
+                    <input type="text" class="input-block-level"
+                           data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.view_url"
+                           placeholder="Enter url to watch stream from.">
+                    <div class="viewer_additional">
+                        <div><small><a href="#" class="muted"
+                                       data-bind="toggleContent: { class: 'fa-caret-right fa-caret-down', parent: '.viewer_additional', container: '.hide' }"><i
+                                class="fa fa-caret-right"></i> Additional Information</a></small></div>
+                        <div class="hide">
+                            <table class="table table-striped table-condensed table-fit">
+                                <thead>
+                                <tr>
+                                    <th style="width: 100px">Service</th>
+                                    <th>Example URL</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>YouTube Live</td>
+                                    <td>https://www.youtube.com/embed/live_stream?channel=CHANNEL_ID<br>
+                                        <a href="http://www.youtube.com/account_advanced" target="_blank"
+                                           rel="noopener">Advanced Account Settings</a></td>
+                                </tr>
+                                <tr>
+                                    <td>Twitch</td>
+                                    <td>
+                                        https://player.twitch.tv/?channel=USERNAME&parent=FQDN&autoplay=false&muted=true
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="control-group">
-                <label class="control-label">{{ _('FFMPEG Threads') }}</label>
-                <div class="controls">
-                    <input type="number" class="input-mini" min="1" max="8" data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.ffmpeg_threads">
+        </div>
+        <div id="rtmpsteamer_ffmpeg" class="tab-pane row-fluid">
+            <div class="row-fluid">
+                <div class="span6">
+                    <div class="control-group">
+                        <div class="controls">
+                            <label class="control-label"><input class="input-checkbox" type="checkbox"
+                                                                data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay"/> {{ _('Use An Overlay') }}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="control-group"
+                         data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay">
+                        <label class="control-label">{{ _('Overlay Image') }}</label>
+                        <div class="controls">
+                            <div class="input-prepend input-append">
+                                <button class="btn icon-plus" data-bind="click: uploadImage"></button>
+                                <select data-bind="options: overlay_files, value: settingsViewModel.settings.plugins.rtmpstreamer.overlay_file"></select>
+                                <button class="btn btn-danger icon-trash"
+                                        data-bind="enable: settingsViewModel.settings.plugins.rtmpstreamer.overlay_file() != '{{ plugin_rtmpstreamer_overlay_file_default }}', click: function() { rmImage(settingsViewModel.settings.plugins.rtmpstreamer.overlay_file()); return true; }"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group"
+                         data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay">
+                        <label class="control-label">{{ _('Overlay Style') }}</label>
+                        <div class="controls">
+                            <select data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.overlay_style">
+                                <option value="fs">Fullscreen</option>
+                                <option value="wm_br">Watermark (bottom right)</option>
+                                <option value="wm_bl">Watermark (bottom left)</option>
+                                <option value="wm_tr">Watermark (top right)</option>
+                                <option value="wm_tl">Watermark (top left)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="control-group"
+                         data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay() && settingsViewModel.settings.plugins.rtmpstreamer.overlay_style() != 'fs'">
+                        <label class="control-label">{{ _('Watermark Padding') }}</label>
+                        <div class="controls">
+                            <div class="input-append">
+                                <input type="number" class="input-mini" min="0" max="1024"
+                                       data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.overlay_padding">
+                                <span class="add-on">px</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="span6">
+                    <div class="control-group"
+                         data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_overlay">
+                        <div class="controls">
+                            <label class="control-label"><input class="input-checkbox" type="checkbox"
+                                                                data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay"/> {{ _('Dynamic Overlay') }}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="control-group"
+                         data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay() && settingsViewModel.settings.plugins.rtmpstreamer.use_overlay()">
+                        <label class="control-label">{{ _('Dynamic Interval') }}</label>
+                        <div class="controls">
+                            <div class="input-append">
+                                <input class="input-mini" type="number" min="1" max="60"
+                                       data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.dynamic_overlay_interval"/>
+                                <span class="add-on">seconds</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group"
+                         data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay() && settingsViewModel.settings.plugins.rtmpstreamer.use_overlay()">
+                        <label class="control-label">{{ _('Dynamic Setup') }}</label>
+                        <div class="controls">
+                            <table class="table table-striped table-condensed table-fit">
+                                <thead>
+                                    <tr>
+                                        <th>Position</th>
+                                        <th>Text</th>
+                                        <th><button class="btn btn-mini icon-plus" data-bind="click: $root.addInfo"></button></th>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: settingsViewModel.settings.plugins.rtmpstreamer.dynamic_layout">
+                                    <tr>
+                                        <td data-bind="text: posx() + ',' + posy()"></td>
+                                        <td data-bind="text: text"></td>
+                                        <td>
+                                            <div class="span1 btn-group" style="text-align: center; padding-top: 3px;">
+                                                <button class="btn btn-mini icon-edit" data-bind="click: $root.editInfo"></button>
+                                                <button class="btn btn-mini btn-danger icon-trash" data-bind="click: $root.removeInfo"></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="control-group">
-                <label class="control-label">{{ _('Video Codec') }}</label>
-                <div class="controls">
-                    <select data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.ffmpeg_codec">
-                        <option value="libx264">libx264</option>
-                        <option value="mpeg2video">mpeg2video</option>
-                    </select>
+            <div class="row-fluid">
+                <div class="ffmpeg_advanced">
+                    <div><small><a href="#" class="muted"
+                                   data-bind="toggleContent: { class: 'fa-caret-right fa-caret-down', parent: '.ffmpeg_advanced', container: '.hide' }"><i
+                            class="fa fa-caret-right"></i> Advanced Options</a></small></div>
+                    <div class="hide">
+                        <div class="control-group" title="Debug FFMPEG"
+                             data-bind="hidden: settingsViewModel.settings.plugins.rtmpstreamer.use_docker">
+                            <div class="controls">
+                                <label class="checkbox">
+                                    <input type="checkbox"
+                                           data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.debug_ffmpeg">
+                                    Debug FFMPEG
+                                </label>
+                                <span class="help-block">Debug FFMPEG does not work with Docker</span>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">{{ _('Stream Bit Rate') }}</label>
+                            <div class="controls">
+                                <div class="input-append">
+                                    <input type="text" class="input-mini"
+                                           data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.stream_bitrate">
+                                    <span class="add-on">bit/s</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">{{ _('FFMPEG Threads') }}</label>
+                            <div class="controls">
+                                <input type="number" class="input-mini" min="1" max="8"
+                                       data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.ffmpeg_threads">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">{{ _('Video Codec') }}</label>
+                            <div class="controls">
+                                <select data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.ffmpeg_codec">
+                                    <option value="libx264">libx264</option>
+                                    <option value="mpeg2video">mpeg2video</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">{{ _('FFmpeg Command') }} <button class="btn btn-mini icon-refresh" data-bind="click: reset_ffmpg_cmd" title="Click this button to reset the ffmpeg command to default setting."></button></label>
+                            <div class="controls">
+                                <textarea class="input-block-level" data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.ffmpeg_cmd" rows="5"></textarea>
+                                <span class="help-block"><b>Expert Use Only!</b> This is the FFmpeg command that is passed to FFMPEG for streaming activity. Variable substitution is performed to insert the appropriate values into the command line, use the links below to copy the substitution to the clipboard. Consult the FFmpeg manual for details on its use.</span>
+                            </div>
+                        </div>
+                        <table class="table table-striped table-condensed table-fit">
+                            <caption>FFmpeg command substitutions</caption>
+                            <thead>
+                            <tr>
+                                <th>FFmpeg Cmd Var</th>
+                                <th>Settings Value</th>
+                            </tr>
+                            </thead>
+                            <tr>
+                                <td><a href="#" data-bind="click: $root.copy_cmd_sub">{filename}</a></td>
+                                <td>FFMPEG binary, set via OctoPrint Settings</td>
+                            </tr>
+                            <tr>
+                                <td><a href="#" data-bind="click: $root.copy_cmd_sub">{stream_url}</a></td>
+                                <td>Stream Server URL</td>
+                            </tr>
+                            <tr>
+                                <td><a href="#" data-bind="click: $root.copy_cmd_sub">{stream_resolution}</a></td>
+                                <td>Stream Resolution</td>
+                            </tr>
+                            <tr>
+                                <td><a href="#" data-bind="click: $root.copy_cmd_sub">{webcam_url}</a></td>
+                                <td>OctoPrint Webcam URL</td>
+                            </tr>
+                            <tr>
+                                <td><a href="#" data-bind="click: $root.copy_cmd_sub">{overlay_cmd}</a></td>
+                                <td>FFMPEG switch To Add A Stream Overlay</td>
+                            </tr>
+                            <tr>
+                                <td><a href="#" data-bind="click: $root.copy_cmd_sub">{frame_rate}</a></td>
+                                <td>OctoPrint Webcam Frame Rate</td>
+                            </tr>
+                            <tr>
+                                <td><a href="#" data-bind="click: $root.copy_cmd_sub">{bitrate}</a></td>
+                                <td>Output bitrate</td>
+                            </tr>
+                            <tr>
+                                <td><a href="#" data-bind="click: $root.copy_cmd_sub">{threads}</a></td>
+                                <td>FFMPEG threads</td>
+                            </tr>
+                            <tr>
+                                <td><a href="#" data-bind="click: $root.copy_cmd_sub">{gop_size}</a></td>
+                                <td>Internal Calculated Value (frame rate * 2)</td>
+                            </tr>
+                            <tr>
+                                <td><a href="#" data-bind="click: $root.copy_cmd_sub">{filter}</a></td>
+                                <td>Internal Calculated Value</td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
             </div>
-            <div class="control-group">
-                <label class="control-label">{{ _('FFmpeg Command') }}</label>
+        </div>
+        <div id="rtmpsteamer_docker" class="tab-pane">
+            <div class="control-group" title="Use docker">
                 <div class="controls">
-                    <input type="text" class="input-block-level" data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.ffmpeg_cmd">
-                    <span class="help-block"><b>Expert Use Only!</b> This is the FFmpeg command that is passed to FFMPEG for streaming activity. Variable substitution is performed to insert the appropriate values into the command line. Consult the FFmpeg manual for details on its use.</span>
+                    <label class="checkbox">
+                        <input type="checkbox"
+                               data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.use_docker"> Use
+                        Docker
+                    </label>
                 </div>
             </div>
-            <p>FFmpeg default value: <pre><code>{{ plugin_rtmpstreamer_ffmpeg_cmd_default | escape }}</code></pre></p>
-            <table class="table table-striped table-condensed table-fit">
-                <caption>FFmpeg command substitutions</caption>
-                <thead>
-                <tr>
-                    <th>FFmpeg Cmd Var</th>
-                    <th>Settings Value</th>
-                </tr>
-                </thead>
-                <tr>
-                    <td>{ffmpeg}</td>
-                    <td>FFMPEG binary, set via OctoPrint Settings</td>
-                </tr>
-                <tr>
-                    <td>{stream_url}</td>
-                    <td>Stream Server URL</td>
-                </tr>
-                <tr>
-                    <td>{stream_resolution}</td>
-                    <td>Stream Resolution</td>
-                </tr>
-                <tr>
-                    <td>{webcam_url}</td>
-                    <td>OctoPrint Webcam URL</td>
-                </tr>
-                <tr>
-                    <td>{overlay_cmd}</td>
-                    <td>FFMPEG switch To Add A Stream Overlay</td>
-                </tr>
-                <tr>
-                    <td>{frame_rate}</td>
-                    <td>OctoPrint Webcam Frame Rate</td>
-                </tr>
-                <tr>
-                    <td>{bitrate}</td>
-                    <td>Output bitrate</td>
-                </tr>
-                <tr>
-                    <td>{threads}</td>
-                    <td>FFMPEG threads</td>
-                </tr>
-                <tr>
-                    <td>{gop_size}</td>
-                    <td>Internal Calculated Value (frame rate * 2)</td>
-                </tr>
-                <tr>
-                    <td>{filter}</td>
-                    <td>Internal Calculated Value</td>
-                </tr>
-            </table>
+            <div data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_docker">
+                <h5>To use docker, manually install docker on the octoprint system and make sure the image you select
+                    had ffmpeg on it for the native architecture of that system</h5>
+                <div class="control-group">
+                    <label class="control-label">{{ _('Docker Image') }}</label>
+                    <div class="controls">
+                        <input type="text" class="input-block-level"
+                               data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.docker_image">
+                        <span class="help-block">The name and tag of the Docker image to use (default: {{ plugin_rtmpstreamer_docker_image_default | escape }}).</span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">{{ _('Docker Container') }}</label>
+                    <div class="controls">
+                        <input type="text" class="input-block-level"
+                               data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.docker_container">
+                        <span class="help-block">The name given to the running Docker container (default: {{ plugin_rtmpstreamer_docker_container_default | escape }}).</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</form>
-</div>
 
-<div id="imageUploader" class="modal hide fade">
-    <div class="modal-header">
-        <a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
-        <h3>Overlay/Watermark Image Uploader</h3>
+    <div id="imageUploader" class="modal hide fade">
+        <div class="modal-header">
+            <a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
+            <h3>Overlay/Watermark Image Uploader</h3>
+        </div>
+
+        <div class="modal-body">
+            <div class="control-group">
+                <label class="control-label">{{ _('... from file') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <span class="btn input-group-btn fileinput-button">{{ _('Browse...') }}
+                            <input id="settings_plugin_rtmpstreamer_selectFilePath" type="file" name="file"
+                                   data-bind="attr: { accept: filterFileTypes }"
+                                   data-url="{{ url_for("plugin.rtmpstreamer.upload_file") }}"/>
+                        </span>
+                        <input class="input" type="text" data-bind="value: imageFileName" disabled/>
+                        <button class="btn btn-primary"
+                                data-bind="click: startUploadFromFile, enable: imageFileName, css: {disabled: !imageFileName()}">{{ _('Upload from File') }}</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">{{ _('... from URL') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input class="input" type="text" data-bind="value: imageFileURL, valueUpdate: 'afterkeydown'">
+                        <button class="btn btn-primary"
+                                data-bind="click: startUploadFromURL, enable: imageFileURL, css: {disabled: !imageFileURL()}">{{ _('Upload from URL') }}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer"></div>
     </div>
 
-    <div class="modal-body">
-        <div class="control-group">
-            <label class="control-label">{{ _('... from file') }}</label>
+    <div id="DynamicInfoEditor" data-bind="with: selected_layout" class="modal hide fade">
+        <div class="modal-header">
+            <a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
+            <h3>Overlay Editor</h3>
+        </div>
+
+        <div class="modal-body">
             <div class="controls">
-                <div class="input-append">
-                    <span class="btn input-group-btn fileinput-button">{{ _('Browse...') }}
-                        <input id="settings_plugin_rtmpstreamer_selectFilePath" type="file" name="file" data-bind="attr: { accept: filterFileTypes }" data-url="{{ url_for("plugin.rtmpstreamer.upload_file") }}"/>
-                    </span>
-                    <input class="input" type="text" data-bind="value: imageFileName" disabled/>
-                    <button class="btn btn-primary" data-bind="click: startUploadFromFile, enable: imageFileName, css: {disabled: !imageFileName()}">{{ _('Upload from File') }}</button>
+                <label class="control-label">{{ _('Position') }}</label>
+                <div class="control-group">
+                    <input type="number" min="0" title="Enter x to place the text"
+                           data-bind="value: posx, attr: { max: $root.stream_resolution().split('x')[0] }"
+                           class="input-mini"/>
+                    <input type="number" min="0" title="Enter y to place the text"
+                           data-bind="value: posy, attr: { max: $root.stream_resolution().split('x')[1] }"
+                           class="input-mini"/>
                 </div>
             </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">{{ _('... from URL') }}</label>
             <div class="controls">
-                <div class="input-append">
-                    <input class="input" type="text" data-bind="value: imageFileURL, valueUpdate: 'afterkeydown'">
-                    <button class="btn btn-primary" data-bind="click: startUploadFromURL, enable: imageFileURL, css: {disabled: !imageFileURL()}">{{ _('Upload from URL') }}</button>
-                </div>
+                <label class="control-label">{{ _('Text') }}</label>
+                <input type="text" title="Enter text to display on the overlay" data-bind="value: text" class="input-block-level"/>
             </div>
-        </div>
-    </div>
-
-    <div class="modal-footer"></div>
-</div>
-
-<div id="DynamicInfoEditor" data-bind="with: selected_layout" class="modal hide fade">
-    <div class="modal-header">
-        <a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
-        <h3>Overlay Editor</h3>
-    </div>
-
-    <div class="modal-body">
-        <div class="controls">
-            <label class="control-label">{{ _('Position') }}</label>
-            <div class="control-group">
-                <input type="number" min="0" title="Enter x to place the text" data-bind="value: posx, attr: { max: $root.stream_resolution().split('x')[0] }" class="input-mini"/>
-                <input type="number" min="0" title="Enter y to place the text" data-bind="value: posy, attr: { max: $root.stream_resolution().split('x')[1] }" class="input-mini"/>
-            </div>
-        </div>
-        <div class="controls">
-            <label class="control-label">{{ _('Text') }}</label>
-            <input type="text" title="Enter text to display on the overlay" data-bind="value: text" class="input"/>
-        </div>
-        <div class="overlay_text_vars">
-            <div><small><a href="#" class="muted" data-bind="toggleContent: { class: 'fa-caret-right fa-caret-down', parent: '.overlay_text_vars', container: '.hide' }"><i class="fa fa-caret-right"></i> Text Substitutions</a></small></div>
-            <div class="hide">
-                <table class="table table-striped table-condensed table-fit">
-                    <thead>
+            <div class="overlay_text_vars">
+                <div><small><a href="#" class="muted"
+                               data-bind="toggleContent: { class: 'fa-caret-right fa-caret-down', parent: '.overlay_text_vars', container: '.hide' }"><i
+                        class="fa fa-caret-right"></i> Text Substitutions</a></small></div>
+                <div class="hide">
+                    <table class="table table-striped table-condensed table-fit">
+                        <thead>
                         <tr>
                             <th>Text Var</th>
                             <th>Definition</th>
                         </tr>
-                    </thead>
-                    <tbody>
+                        </thead>
+                        <tbody>
                         <tr>
-                            <td>{filename}</td>
+                            <td><a href="#" data-bind="click: $root.copy_cmd_sub">{filename}</a></td>
                             <td>Filename</td>
                         </tr>
                         <tr>
-                            <td>{estimatedprinttime}</td>
+                            <td><a href="#" data-bind="click: $root.copy_cmd_sub">{estimatedprinttime}</a></td>
                             <td>Estimated Print Time</td>
                         </tr>
                         <tr>
-                            <td>{percdone}</td>
+                            <td><a href="#" data-bind="click: $root.copy_cmd_sub">{percdone}</a></td>
                             <td>Percentage done</td>
                         </tr>
                         <tr>
-                            <td>{printtime}</td>
+                            <td><a href="#" data-bind="click: $root.copy_cmd_sub">{printtime}</a></td>
                             <td>Print Time Elapsed</td>
                         </tr>
                         <tr>
-                            <td>{timeleft}</td>
+                            <td><a href="#" data-bind="click: $root.copy_cmd_sub">{timeleft}</a></td>
                             <td>Print Time Remaining</td>
                         </tr>
                         <tr>
-                            <td>{bedtemp}</td>
+                            <td><a href="#" data-bind="click: $root.copy_cmd_sub">{bedtemp}</a></td>
                             <td>Temperature of the bed</td>
                         </tr>
                         <tr>
-                            <td>{bedtarget}</td>
+                            <td><a href="#" data-bind="click: $root.copy_cmd_sub">{bedtarget}</a></td>
                             <td>Target Temperature of the bed</td>
                         </tr>
                         <tr>
-                            <td>{chambertemp}</td>
+                            <td><a href="#" data-bind="click: $root.copy_cmd_sub">{chambertemp}</a></td>
                             <td>Temperature of the chamber</td>
                         </tr>
                         <tr>
-                            <td>{chambertarget}</td>
+                            <td><a href="#" data-bind="click: $root.copy_cmd_sub">{chambertarget}</a></td>
                             <td>Target Temperature of the chamber</td>
                         </tr>
                         <tr>
-                            <td>{toolntemp}</td>
+                            <td><a href="#" data-bind="click: $root.copy_cmd_sub">{toolntemp}</a></td>
                             <td>Temperature of Tool, n = 0 - 4, ie: {tool0temp}</td>
                         </tr>
                         <tr>
-                            <td>{toolntarget}</td>
+                            <td><a href="#" data-bind="click: $root.copy_cmd_sub">{toolntarget}</a></td>
                             <td>Target Temperature of Tool, n = 0 - 4, ie: {tool0target}</td>
                         </tr>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="controls">
+                <label class="control-label">{{ _('Font') }}</label>
+                <select class="input" data-bind="value: font">
+                    <option value="times.ttf">Times New Roman</option>
+                    <option value="timesbd.ttf">Times New Roman (Bold)</option>
+                </select>
+            </div>
+            <div class="controls">
+                <label class="control-label">{{ _('Size') }}</label>
+                <input type="number" class="input-mini" min="10" max="72" step="2" data-bind="value: size"/>
+            </div>
+            <div class="controls">
+                <label class="control-label">{{ _('Color') }}</label>
+                <div class="input-append">
+                    <input type="text" class="input-mini" readonly="true" data-bind="value: color"/>
+                    <span class="add-on" data-bind="style: {'background-color': color}"><input type="color" class="input-block" style="width: 25px;" data-bind="value: color, style: {'background-color': color}"/></span>
+                </div>
             </div>
         </div>
-        <div class="controls">
-            <label class="control-label">{{ _('Font') }}</label>
-            <select class="input" data-bind="value: font">
-                <option value="times.ttf">Times New Roman</option>
-                <option value="timesbd.ttf">Times New Roman (Bold)</option>
-            </select>
-        </div>
-        <div class="controls">
-            <label class="control-label">{{ _('Size') }}</label>
-            <input type="number" class="input-mini" min="10" max="72" step="2" data-bind="value: size" />
-        </div>
-        <div class="controls">
-            <label class="control-label">{{ _('Color') }}</label>
-            <div class="input-prepend">
-                <input type="color" class="add-on" style="width: 25px;" data-bind="value: color" />
-                <input type="text" class="input-mini" readonly="true" data-bind="value: color" />
-            </div>
-        </div>
-    </div>
 
-    <div class="modal-footer">
-        <small>Make sure to click save in the main settings after making changes here.</small> <button type="button" class="btn" data-dismiss="modal">Close</button>
+        <div class="modal-footer">
+            <small>Make sure to click save in the main settings after making changes here.</small>
+            <button type="button" class="btn" data-dismiss="modal">Close</button>
+        </div>
     </div>
-</div>
+</form>
