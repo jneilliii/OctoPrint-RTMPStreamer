@@ -259,7 +259,7 @@
                             </div>
                         </div>
                         <div class="control-group">
-                            <label class="control-label">{{ _('FFmpeg Command') }} <button class="btn btn-mini icon-refresh" data-bind="click: reset_ffmpg_cmd" title="Click this button to reset the ffmpeg command to default setting."></button></label>
+                            <label class="control-label">{{ _('FFmpeg Command') }} <button class="btn btn-mini icon-refresh" data-bind="click: reset_ffmpg_cmd('{{ plugin_rtmpstreamer_ffmpeg_cmd_default | escape }}')" title="Click this button to reset the ffmpeg command to default setting."></button></label>
                             <div class="controls">
                                 <textarea class="input-block-level" data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.ffmpeg_cmd" rows="5"></textarea>
                                 <span class="help-block"><b>Expert Use Only!</b> This is the FFmpeg command that is passed to FFMPEG for streaming activity. Variable substitution is performed to insert the appropriate values into the command line, use the links below to copy the substitution to the clipboard. Consult the FFmpeg manual for details on its use.</span>

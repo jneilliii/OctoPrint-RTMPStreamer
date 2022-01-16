@@ -286,8 +286,8 @@ $(function () {
 			copyToClipboard(elem.target.text);
 		};
 
-		self.reset_ffmpg_cmd = function() {
-			self.settingsViewModel.settings.plugins.rtmpstreamer.ffmpeg_cmd($("#default_ffmpeg_cmd").text());
+		self.reset_ffmpg_cmd = function(data) {
+			self.settingsViewModel.settings.plugins.rtmpstreamer.ffmpeg_cmd(data);
 		};
 	}
 
