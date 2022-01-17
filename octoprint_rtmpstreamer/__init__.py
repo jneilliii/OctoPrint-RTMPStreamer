@@ -43,6 +43,8 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             self.platform = "darwin"
         elif sys.platform == "win32":
             self.platform = "win32"
+            # glob is only availabe on POSIX systems
+            self.use_dynamic_overlay = False
         else:
             self.platform = "linux"
             try:
@@ -61,9 +63,14 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
         self.frame_rate_default = 5
         self.stream_resolution_default = "640x480"
+        if self.platform == "win32":
+            audio_dev = "nul"
+        else:
+            audio_dev = "/dev/zero"
+
         self.ffmpeg_cmd_default = (
             "{ffmpeg} -re -f mjpeg -framerate {frame_rate} -i {webcam_url} {overlay_cmd} "  # Video input
-            "-ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i /dev/zero "  # Audio input
+            "-ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i " + audio_dev + " " # Audio input
             "-acodec aac -ab 128k "  # Audio output
             "-s {stream_resolution} -vcodec {videocodec} -threads {threads} -pix_fmt yuv420p -framerate {frame_rate} -g {gop_size} -vb {bitrate} -strict experimental {filter} "  # Video output
             "-f flv {stream_url}")  # Output stream
@@ -75,7 +82,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
     @octoprint.plugin.BlueprintPlugin.route("/rtmpstreamer_upload", methods=["POST"])
     @octoprint.server.util.flask.restricted_access
-    @octoprint.server.admin_permission.require(403)
+    @Permissions.PLUGIN_RTMPSTREAMER_CONTROL.require(403)
     def upload_file(self):
         value_source = flask.request.json if flask.request.json else flask.request.values
 
@@ -122,10 +129,12 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             self._logger.info("Auto starting stream on start up.")
             self._start_stream()
 
-    # ~~ TemplatePlugin mixin
+        if self.platform == "win32":
+            # glob is only availabe on POSIX systems
+            self._logger.info("Forcing dynamic overlays to off as we aren't posix")
+            self._settings.set_boolean(["use_dynamic_overlay"], False)
 
-    def get_template_vars(self):
-        return {"plugin_version": self._plugin_version}
+    # ~~ TemplatePlugin mixin
 
     def get_template_configs(self):
         return [dict(type="settings", custom_bindings=True)]
@@ -136,13 +145,16 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             ffmpeg_cmd_default=self.ffmpeg_cmd_default,
             docker_image_default=self.docker_image_default,
             docker_container_default=self.docker_container_default,
-            overlay_file_default=self.overlay_image_default
+            overlay_file_default=self.overlay_image_default,
+            plugin_version=self._plugin_version
         )
 
     # ~~ SettingsPlugin mixin
 
     def get_settings_defaults(self):
         return dict(
+            platform=self.platform,
+
             # put your plugin's default settings here
             view_url="",
             stream_url="",
@@ -171,7 +183,9 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             frame_rate_default=self.frame_rate_default,
             ffmpeg_cmd_default=self.ffmpeg_cmd_default,
             docker_image_default=self.docker_image_default,
-            docker_container_default=self.docker_container_default
+            docker_container_default=self.docker_container_default,
+            overlay_file_default=self.overlay_image_default,
+            plugin_version=self._plugin_version
         )
 
     def get_settings_restricted_paths(self):
@@ -329,7 +343,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                     overlay_cmd = "-i " + os.path.join(self.tmpdir, "overlay.png") + " " + overlay_cmd
             ffmpeg_cli = "ffmpeg"
             if self._settings.global_get(["webcam", "ffmpeg"]):
-                ffmpeg_cli = self._settings.global_get(["webcam", "ffmpeg"])
+                ffmpeg_cli = self._settings.global_get(["webcam", "ffmpeg"]).replace("\\", "/")
             # Substitute vars in ffmpeg command
             stream_cmd = self._settings.get(["ffmpeg_cmd"]).format(
                 ffmpeg=ffmpeg_cli,
@@ -461,12 +475,12 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                 percdone="{:.2f}".format(jobInfo["completion"]) if jobInfo["completion"] else 0,
                 printtime=self.convertSeconds(int(jobInfo["printTime"])) if jobInfo["printTime"] else "...",
                 timeleft=self.convertSeconds(int(jobInfo["printTimeLeft"])) if jobInfo["printTimeLeft"] else "...",
-                bedtemp=temps["bed"]["actual"],
-                bedtarget=temps["bed"]["target"],
-                chambertemp=temps["chamber"]["actual"],
-                chambertarget=temps["chamber"]["target"],
-                tool0temp=temps["tool0"]["actual"],
-                tool0target=temps["tool0"]["target"],
+                bedtemp=temps["bed"]["actual"] if "bed" in temps else 0,
+                bedtarget=temps["bed"]["target"] if "bed" in temps else 0,
+                chambertemp=temps["chamber"]["actual"] if "chamber" in temps else 0,
+                chambertarget=temps["chamber"]["target"] if "chamber" in temps else 0,
+                tool0temp=temps["tool0"]["actual"] if "tool0" in temps else 0,
+                tool0target=temps["tool0"]["target"] if "tool0" in temps else 0,
                 tool1temp=temps["tool1"]["actual"] if "tool1" in temps else 0,
                 tool1target=temps["tool1"]["target"] if "tool1" in temps else 0,
                 tool2temp=temps["tool2"]["actual"] if "tool2" in temps else 0,
