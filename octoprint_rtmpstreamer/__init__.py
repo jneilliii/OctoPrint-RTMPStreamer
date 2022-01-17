@@ -69,10 +69,10 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             audio_dev = "/dev/zero"
 
         self.ffmpeg_cmd_default = (
-            "{ffmpeg} -re -f mjpeg -framerate {frame_rate} -i {webcam_url} {overlay_cmd} "  # Video input
+            "{ffmpeg} -re -f mjpeg -framerate {frame_rate} -i {webcam_url} {filter} "  # Video input
             "-ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i " + audio_dev + " " # Audio input
             "-acodec aac -ab 128k "  # Audio output
-            "-s {stream_resolution} -vcodec {videocodec} -threads {threads} -pix_fmt yuv420p -framerate {frame_rate} -g {gop_size} -vb {bitrate} -strict experimental {filter} "  # Video output
+            "-s {stream_resolution} -vcodec {videocodec} -threads {threads} -pix_fmt yuv420p -framerate {frame_rate} -g {gop_size} -vb {bitrate} -strict experimental "  # Video output
             "-f flv {stream_url}")  # Output stream
         self.overlay_image_default = "jneilliii.png"
         self.docker_image_default = "kolisko/rpi-ffmpeg:latest"
@@ -294,11 +294,12 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
         if not self.container:
             overlay_cmds = dict(
-                fs="-filter_complex \"[0:v]scale={stream_width}:{stream_height}[base]; [1:v][base]scale2ref=iw:-1[over][base]; [base][over]overlay=0:0\"",
-                wm_br="-filter_complex \"[0:v]scale={stream_width}:{stream_height}[base]; [base][1:v] overlay=({stream_width} - {overlay_width} - {overlay_padding}):({stream_height} - {overlay_height} - {overlay_padding})\"",
-                wm_bl="-filter_complex \"[0:v]scale={stream_width}:{stream_height}[base]; [base][1:v] overlay={overlay_padding}:({stream_height} - {overlay_height} - {overlay_padding})\"",
-                wm_tr="-filter_complex \"[0:v]scale={stream_width}:{stream_height}[base]; [base][1:v] overlay=({stream_width} - {overlay_width} - {overlay_padding}):{overlay_padding}\"",
-                wm_tl="-filter_complex \"[0:v]scale={stream_width}:{stream_height}[base]; [base][1:v] overlay={overlay_padding}:{overlay_padding}\""
+                no="-filter_complex \"[0:v]{filter}scale={stream_width}:{stream_height}[base]",
+                fs="-filter_complex \"[0:v]{filter}scale={stream_width}:{stream_height}[base]; [1:v][base]scale2ref=iw:-1[over][base]; [base][over]overlay=0:0\"",
+                wm_br="-filter_complex \"[0:v]{filter}scale={stream_width}:{stream_height}[base]; [base][1:v]overlay=({stream_width} - {overlay_width} - {overlay_padding}):({stream_height} - {overlay_height} - {overlay_padding})\"",
+                wm_bl="-filter_complex \"[0:v]{filter}scale={stream_width}:{stream_height}[base]; [base][1:v]overlay={overlay_padding}:({stream_height} - {overlay_height} - {overlay_padding})\"",
+                wm_tr="-filter_complex \"[0:v]{filter}scale={stream_width}:{stream_height}[base]; [base][1:v]overlay=({stream_width} - {overlay_width} - {overlay_padding}):{overlay_padding}\"",
+                wm_tl="-filter_complex \"[0:v]{filter}scale={stream_width}:{stream_height}[base]; [base][1:v]overlay={overlay_padding}:{overlay_padding}\""
             )
             filter_str = ""
             filters = []
@@ -309,9 +310,10 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             if self._settings.global_get(["webcam", "rotate90"]):
                 filters.append("transpose=cclock")
             if len(filters):
-                filter_str = "-filter:v {}".format(",".join(filters))
+                filter_str = "{},".format(",".join(filters))
             gop_size = int(self._settings.get(["frame_rate"])) * 2
             overlay_cmd = ""
+            overlay_width = overlay_height = overlay_padding = 0
             if self._settings.get(["use_overlay"]):
                 if os.path.isfile(os.path.join(self.get_plugin_data_folder(), self._settings.get(["overlay_file"]))):
                     if self._settings.get(["use_dynamic_overlay"]):
@@ -324,22 +326,24 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                     overlay_width, overlay_height = overlay.size
                     # FIXME is this a sane test? what about with docker?
                     # test stream before use, won't work unless ffprobe is available, ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 webcamstream
-                    stream_width, stream_height = self._settings.get(["stream_resolution"]).split("x")
-                    # Substitute vars in overlay command
-                    if self._settings.get(["use_dynamic_overlay"]):
-                        overlay_style = "fs"
-                    else:
-                        overlay_style = self._settings.get(["overlay_style"])
-                    overlay_cmd = overlay_cmds[overlay_style].format(
-                        stream_width=stream_width,
-                        stream_height=stream_height,
-                        overlay_width=overlay_width,
-                        overlay_height=overlay_height,
-                        overlay_padding=self._settings.get(["overlay_padding"]))
+                stream_width, stream_height = self._settings.get(["stream_resolution"]).split("x")
+                # Substitute vars in overlay command
                 if self._settings.get(["use_dynamic_overlay"]):
-                    overlay_cmd = "-pattern_type glob -loop 1 -r 30 -i \"" + os.path.join(self.tmpdir,
-                                                                                          "overlay") + "*.png\" " + overlay_cmd
+                    overlay_style = "fs"
+                elif not self._settings.get(["use_overlay"]):
+                    overlay_style = "no"
                 else:
+                    overlay_style = self._settings.get(["overlay_style"])
+                overlay_cmd = overlay_cmds[overlay_style].format(
+                    filter=filter_str,
+                    stream_width=stream_width,
+                    stream_height=stream_height,
+                    overlay_width=overlay_width,
+                    overlay_height=overlay_height,
+                    overlay_padding=self._settings.get(["overlay_padding"]))
+                if self._settings.get(["use_dynamic_overlay"]):
+                    overlay_cmd = "-pattern_type glob -loop 1 -r 30 -i \"" + os.path.join(self.tmpdir, "overlay") + "*.png\" " + overlay_cmd
+                elif self._settings.get(["use_overlay"]):
                     overlay_cmd = "-i " + os.path.join(self.tmpdir, "overlay.png") + " " + overlay_cmd
             ffmpeg_cli = "ffmpeg"
             if self._settings.global_get(["webcam", "ffmpeg"]):
@@ -347,7 +351,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             # Substitute vars in ffmpeg command
             stream_cmd = self._settings.get(["ffmpeg_cmd"]).format(
                 ffmpeg=ffmpeg_cli.replace("\\", "/"), # use replace to handle for windows pathing back slash
-                overlay_cmd=overlay_cmd.replace("\\", "/"), # use replace to handle for windows pathing back slash
+                filter=overlay_cmd.replace("\\", "/"), # use replace to handle for windows pathing back slash
                 webcam_url=webcamstream,
                 stream_url=self._settings.get(["stream_url"]),
                 frame_rate=self._settings.get(["frame_rate"]),
@@ -355,8 +359,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                 threads=self._settings.get(["ffmpeg_threads"]),
                 videocodec=self._settings.get(["ffmpeg_codec"]),
                 stream_resolution=self._settings.get(["stream_resolution"]),
-                gop_size=gop_size,
-                filter=filter_str)
+                gop_size=gop_size)
             try:
                 if self._settings.get(["use_docker"]):
                     self._logger.info("Launching docker container '" + self._settings.get(
