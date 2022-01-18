@@ -343,7 +343,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                     overlay_cmd = "-i " + os.path.join(self.tmpdir, "overlay.png") + " " + overlay_cmd
             ffmpeg_cli = "ffmpeg"
             if self._settings.global_get(["webcam", "ffmpeg"]):
-                ffmpeg_cli = self._settings.global_get(["webcam", "ffmpeg"])
+                ffmpeg_cli = self._settings.global_get(["webcam", "ffmpeg"]).replace("\\", "/")
             # Substitute vars in ffmpeg command
             stream_cmd = self._settings.get(["ffmpeg_cmd"]).format(
                 ffmpeg=ffmpeg_cli.replace("\\", "/"), # use replace to handle for windows pathing back slash
