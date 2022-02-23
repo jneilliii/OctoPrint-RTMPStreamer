@@ -444,16 +444,17 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             elif overlay_style == "wm_tl":
                 img.paste(watermark, (padding, padding))
 
-        if 'prusaslicerthumbnails' in self._plugin_manager.plugins and self._settings.get(["include_thumb"]):
-            if os.path.exists(os.path.join(self._settings.global_get_basefolder("data"), "prusaslicerthumbnails", filename + ".png")):
-                thumb = Image.open(os.path.join(self._settings.global_get_basefolder("data"), "prusaslicerthumbnails", filename + ".png"))
+        if 'prusaslicerthumbnails' in self._plugin_manager.plugins and self._settings.get_boolean(["include_thumb"]):
+            thumbfile = os.path.join(self._settings.global_get_basefolder("data"), "prusaslicerthumbnails", filename + ".png")
+            if os.path.exists(thumbfile):
+                thumb = Image.open(thumbfile)
                 th_w = self._settings.get(["thumbw"])
                 th_h = self._settings.get(["thumbh"])
                 newsize = (int(th_w), int(th_h))
                 thumb = thumb.resize(newsize)
                 th_x = int(self._settings.get(["thumbx"]))
                 th_y = int(self._settings.get(["thumby"]))
-                img.paste(thumb, (th_x, th_y))
+                img.paste(thumb, (th_x, th_y), thumb)
 
         draw = ImageDraw.Draw(img)
 
