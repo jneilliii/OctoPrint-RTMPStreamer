@@ -135,7 +135,7 @@
                         <div class="controls">
                             <div class="input-prepend input-append">
                                 <button class="btn icon-plus" data-bind="click: uploadImage"></button>
-                                <select data-bind="options: overlay_files, value: settingsViewModel.settings.plugins.rtmpstreamer.overlay_file"></select>
+                                <select data-bind="options: overlay_files, value: settingsViewModel.settings.plugins.rtmpstreamer.overlay_file, valueAllowUnset: true"></select>
                                 <button class="btn btn-danger icon-trash"
                                         data-bind="enable: settingsViewModel.settings.plugins.rtmpstreamer.overlay_file() != '{{ plugin_rtmpstreamer_overlay_file_default }}', click: function() { rmImage(settingsViewModel.settings.plugins.rtmpstreamer.overlay_file()); return true; }"></button>
                             </div>
