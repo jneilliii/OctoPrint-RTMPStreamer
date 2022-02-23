@@ -22,6 +22,7 @@ import shlex
 import shutil
 import subprocess
 import flask
+import re
 
 import octoprint.server.util.flask
 from octoprint.server import admin_permission, NO_CONTENT
@@ -415,7 +416,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
         fileInfo = current_data["job"]["file"]
         filename = "None Loaded"
         if fileInfo["name"]:
-            filename = fileInfo["name"].replace(".gcode", "")
+            filename = re.sub(r"\.gcod?e?$", "", fileInfo["name"], flags=re.IGNORECASE)
 
         estimatedPrintTime = current_data["job"]["estimatedPrintTime"]
 
