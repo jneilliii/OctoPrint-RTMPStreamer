@@ -188,6 +188,43 @@
                     </div>
                     <div class="control-group"
                          data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay() && settingsViewModel.settings.plugins.rtmpstreamer.use_overlay()">
+                        <div class="controls">
+                            <label class="control-label"><input class="input-checkbox" type="checkbox"
+                                                                data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.include_thumb" /> {{ _('Include GCode Thumbnail') }}
+                            </label>
+                            <span class="help-block">Requires the Slicer Thumbnails plugin.</span>
+                        </div>
+                    </div>
+                    <div class="control-group"
+                         data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay() && settingsViewModel.settings.plugins.rtmpstreamer.use_overlay() && settingsViewModel.settings.plugins.rtmpstreamer.include_thumb">
+                        <label class="control-label">{{ _('Thumb Size') }}</label>
+                        <div class="controls">
+                            <div class="input-append">
+                                <input class="input-mini" type="number" min="0"
+                                       data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.thumbw, attr: { max: $root.stream_resolution().split('x')[0] }"/>
+                                <span class="add-on">px</span>
+                                <input class="input-mini" type="number" min="0" 
+                                       data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.thumbh, attr: { max: $root.stream_resolution().split('x')[1] }"/>
+                                <span class="add-on">px</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group"
+                         data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay() && settingsViewModel.settings.plugins.rtmpstreamer.use_overlay() && settingsViewModel.settings.plugins.rtmpstreamer.include_thumb">
+                        <label class="control-label">{{ _('Thumb Position') }}</label>
+                        <div class="controls">
+                            <div class="input-append">
+                                <input class="input-mini" type="number" min="0"
+                                       data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.thumbx, attr: { max: $root.stream_resolution().split('x')[0] }"/>
+                                <span class="add-on">px</span>
+                                <input class="input-mini" type="number" min="0" 
+                                       data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.thumby, attr: { max: $root.stream_resolution().split('x')[1] }"/>
+                                <span class="add-on">px</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group"
+                         data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay() && settingsViewModel.settings.plugins.rtmpstreamer.use_overlay()">
                         <label class="control-label">{{ _('Dynamic Setup') }}</label>
                         <div class="controls">
                             <table class="table table-striped table-condensed table-fit">
