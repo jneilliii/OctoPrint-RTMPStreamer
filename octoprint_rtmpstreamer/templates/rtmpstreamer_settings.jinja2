@@ -135,7 +135,7 @@
                         <div class="controls">
                             <div class="input-prepend input-append">
                                 <button class="btn icon-plus" data-bind="click: uploadImage"></button>
-                                <select data-bind="options: overlay_files, value: settingsViewModel.settings.plugins.rtmpstreamer.overlay_file"></select>
+                                <select data-bind="options: overlay_files, value: settingsViewModel.settings.plugins.rtmpstreamer.overlay_file, valueAllowUnset: true"></select>
                                 <button class="btn btn-danger icon-trash"
                                         data-bind="enable: settingsViewModel.settings.plugins.rtmpstreamer.overlay_file() != '{{ plugin_rtmpstreamer_overlay_file_default }}', click: function() { rmImage(settingsViewModel.settings.plugins.rtmpstreamer.overlay_file()); return true; }"></button>
                             </div>
@@ -183,6 +183,46 @@
                                 <input class="input-mini" type="number" min="1" max="60"
                                        data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.dynamic_overlay_interval"/>
                                 <span class="add-on">seconds</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                         data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.use_dynamic_overlay() && settingsViewModel.settings.plugins.rtmpstreamer.use_overlay()">
+                        <div class="control-group">
+                            <div class="controls">
+                                <label class="control-label"><input class="input-checkbox" type="checkbox"
+                                                                    data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.include_thumb" /> {{ _('Include GCode Thumbnail') }}
+                                </label>
+                                <span class="help-block">Requires the Slicer Thumbnails plugin.</span>
+                            </div>
+                        </div>
+                        <div
+                             data-bind="visible: settingsViewModel.settings.plugins.rtmpstreamer.include_thumb">
+                            <div class="control-group">
+                                <label class="control-label">{{ _('Thumb Size') }}</label>
+                                <div class="controls">
+                                    <div class="input-append">
+                                        <input class="input-mini" type="number" min="0"
+                                               data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.thumbw, attr: { max: $root.stream_resolution().split('x')[0] }"/>
+                                        <span class="add-on">px</span>
+                                        <input class="input-mini" type="number" min="0" 
+                                               data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.thumbh, attr: { max: $root.stream_resolution().split('x')[1] }"/>
+                                        <span class="add-on">px</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label">{{ _('Thumb Position') }}</label>
+                                <div class="controls">
+                                    <div class="input-append">
+                                        <input class="input-mini" type="number" min="0"
+                                               data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.thumbx, attr: { max: $root.stream_resolution().split('x')[0] }"/>
+                                        <span class="add-on">px</span>
+                                        <input class="input-mini" type="number" min="0" 
+                                               data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.thumby, attr: { max: $root.stream_resolution().split('x')[1] }"/>
+                                        <span class="add-on">px</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

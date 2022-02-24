@@ -22,6 +22,7 @@ import shlex
 import shutil
 import subprocess
 import flask
+import re
 
 import octoprint.server.util.flask
 from octoprint.server import admin_permission, NO_CONTENT
@@ -163,6 +164,11 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             overlay_padding=10,
             overlay_file=self.overlay_image_default,
             overlay_files=self.getImageList(),
+            include_thumb=False,
+            thumbw=300,
+            thumbh=300,
+            thumbx=10,
+            thumby=10,
             streaming=False,
             auto_start=False,
             auto_start_on_power_up=False,
@@ -408,6 +414,9 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
         # name, path, size, origin, date
         fileInfo = current_data["job"]["file"]
+        filename = "None Loaded"
+        if fileInfo["name"]:
+            filename = re.sub(r"\.gcod?e?$", "", fileInfo["name"], flags=re.IGNORECASE)
 
         estimatedPrintTime = current_data["job"]["estimatedPrintTime"]
 
@@ -435,6 +444,18 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                 img.paste(watermark, ((img_w - wm_w - padding), (padding)))
             elif overlay_style == "wm_tl":
                 img.paste(watermark, (padding, padding))
+
+        if 'prusaslicerthumbnails' in self._plugin_manager.plugins and self._settings.get_boolean(["include_thumb"]):
+            thumbfile = os.path.join(self._settings.global_get_basefolder("data"), "prusaslicerthumbnails", filename + ".png")
+            if os.path.exists(thumbfile):
+                thumb = Image.open(thumbfile)
+                th_w = self._settings.get(["thumbw"])
+                th_h = self._settings.get(["thumbh"])
+                newsize = (int(th_w), int(th_h))
+                thumb = thumb.resize(newsize)
+                th_x = int(self._settings.get(["thumbx"]))
+                th_y = int(self._settings.get(["thumby"]))
+                img.paste(thumb, (th_x, th_y), thumb)
 
         draw = ImageDraw.Draw(img)
 
@@ -469,7 +490,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                 color = tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
             txtval = txt.format(
-                filename=fileInfo["name"],
+                filename=filename,
                 estimatedprinttime=self.convertSeconds(int(estimatedPrintTime)) if estimatedPrintTime else "...",
                 percdone="{:.2f}".format(jobInfo["completion"]) if jobInfo["completion"] else 0,
                 printtime=self.convertSeconds(int(jobInfo["printTime"])) if jobInfo["printTime"] else "...",
