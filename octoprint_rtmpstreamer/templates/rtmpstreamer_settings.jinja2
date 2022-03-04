@@ -290,11 +290,55 @@
                             </div>
                         </div>
                         <div class="control-group">
+                            <label class="control-label">{{ _('Video Device') }}</label>
+                            <div class="controls">
+                                <input type="text" class="input"
+                                       data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.ffmpeg_videodev">
+                                <span class="help-block">Level blank to use video from OctoPrint global settings</span>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">{{ _('Video Type') }}</label>
+                            <div class="controls">
+                                <input type="text" class="input"
+                                       data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.ffmpeg_videotype">
+                            </div>
+                        </div>
+                        <div class="control-group">
                             <label class="control-label">{{ _('Video Codec') }}</label>
                             <div class="controls">
                                 <select data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.ffmpeg_codec">
-                                    <option value="libx264">libx264</option>
-                                    <option value="mpeg2video">mpeg2video</option>
+                                    <optgroup label="h264">
+                                        <option value="h264_omx">h264_omx OpenMAX IL</option>
+                                        <option value="h264_mmal">h264_mmal MMAL</option>
+                                        <option value="h264_v4l2m2m">h264_v4l2m2m V4L2 mem2mem</option>
+                                        <option value="h264_vaapi">h264_vaapi VAAPI</option>
+                                        <option value="h264_videotoolbox">h264_videotoolbox VideoToolbox</option>
+                                        <option value="libopenh264">libopenh264 Cisco</option>
+                                        <option value="libx264">libx264 Software</option>
+                                        <option value="libx264rgb">libx264rgb Software</option>
+                                    </optgroup>
+                                    <optgroup label="h265">
+                                        <option value="libx265">libx265 Software</option>
+                                        <option value="hevc_videotoolbox">hevc_videotoolbox VideoToolbox</option>
+                                        <option value="libkvazaar">libkvazaar Kvazaar</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">{{ _('Audio Device') }}</label>
+                            <div class="controls">
+                                <input type="text" class="input"
+                                       data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.ffmpeg_audiodev">
+                                <span class="help-block">Level blank for no audio</span>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">{{ _('Audio Codec') }}</label>
+                            <div class="controls">
+                                <select data-bind="value: settingsViewModel.settings.plugins.rtmpstreamer.ffmpeg_acodec">
+                                    <option value="aac">aac Advanced Audio Coding</option>
                                 </select>
                             </div>
                         </div>
@@ -515,6 +559,20 @@
             <div class="controls">
                 <label class="control-label">{{ _('Font') }}</label>
                 <select class="input" data-bind="value: font">
+                    <option value="AmaticSC-Regular.ttf">Amatic</option>
+                    <option value="Amatic-Bold.ttf">Amatic (Bold)</option>
+                    <option value="Lato-Regular.ttf">Lato</option>
+                    <option value="Lato-Bold.ttf">Lato (Bold)</option>
+                    <option value="OpenSans-Regular.ttf">Open Sans</option>
+                    <option value="OpenSans-Bold.ttf">Open Sans (Bold)</option>
+                    <option value="Oswald-Regular.ttf">Oswald</option>
+                    <option value="Oswald-Bold.ttf">Oswald (Bold)</option>
+                    <option value="Pacifico.ttf">Pacifico</option>
+                    <option value="Raleway-Regular.ttf">Raleway</option>
+                    <option value="Raleway-Bold.ttf">Raleway (Bold)</option>
+                    <option value="Roboto-Regular.ttf">Roboto</option>
+                    <option value="Roboto-Bold.ttf">Roboto (Bold)</option>
+                    <option value="SEASRN__.ttf">Seaside Resort</option>
                     <option value="times.ttf">Times New Roman</option>
                     <option value="timesbd.ttf">Times New Roman (Bold)</option>
                 </select>

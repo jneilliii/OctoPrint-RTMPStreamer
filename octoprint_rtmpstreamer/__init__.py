@@ -66,9 +66,9 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
         self.stream_resolution_default = "640x480"
 
         self.ffmpeg_cmd_default = (
-            "{ffmpeg} -re -f mjpeg -framerate {frame_rate} -i {webcam_url} {filter} "  # Video input
-            "-f lavfi -i anullsrc " # Audio input
-            "-acodec aac -ab 128k "  # Audio output
+            "{ffmpeg} -re -f {videotype} -framerate {frame_rate} -i {webcam_url} {filter} "  # Video input
+            "-f lavfi -i {audiodev} " # Audio input
+            "-acodec {audiocodec} -ab 128k "  # Audio output
             "-s {stream_resolution} -vcodec {videocodec} -threads {threads} -pix_fmt yuv420p -framerate {frame_rate} -g {gop_size} -vb {bitrate} -strict experimental "  # Video output
             "-f flv {stream_url}")  # Output stream
         self.overlay_image_default = "jneilliii.png"
@@ -179,7 +179,11 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             frame_rate=self.frame_rate_default,
             stream_bitrate="400k",
             ffmpeg_threads=1,
-            ffmpeg_codec="libx264",
+            ffmpeg_videotype="mjpeg",
+            ffmpeg_videodev="",
+            ffmpeg_codec="h264_v4l2m2m" if self.platform == "pi" else "libx264",
+            ffmpeg_audiodev="",
+            ffmpeg_acodec="aac",
 
             # Default values
             frame_rate_default=self.frame_rate_default,
@@ -354,12 +358,15 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             stream_cmd = self._settings.get(["ffmpeg_cmd"]).format(
                 ffmpeg=ffmpeg_cli.replace("\\", "/"), # use replace to handle for windows pathing back slash
                 filter=overlay_cmd.replace("\\", "/"), # use replace to handle for windows pathing back slash
-                webcam_url=webcamstream,
+                webcam_url=webcamstream if not self._settings.get(["ffmpeg_videodev"]) else self._settings.get(["ffmpeg_videodev"]),
                 stream_url=self._settings.get(["stream_url"]),
                 frame_rate=self._settings.get(["frame_rate"]),
                 bitrate=self._settings.get(["stream_bitrate"]),
                 threads=self._settings.get(["ffmpeg_threads"]),
+                videotype=self._settings.get(["ffmpeg_videotype"]),
                 videocodec=self._settings.get(["ffmpeg_codec"]),
+                audiodev="anullsrc" if not self._settings.get(["ffmpeg_audiodev"]) else  self._settings.get(["ffmpeg_audiodev"]),
+                audiocodec=self._settings.get(["ffmpeg_acodec"]),
                 stream_resolution=self._settings.get(["stream_resolution"]),
                 gop_size=gop_size)
             try:
