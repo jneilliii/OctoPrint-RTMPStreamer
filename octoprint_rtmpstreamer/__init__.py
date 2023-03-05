@@ -81,8 +81,6 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
     @octoprint.server.util.flask.restricted_access
     @Permissions.PLUGIN_RTMPSTREAMER_CONTROL.require(403)
     def upload_file(self):
-        value_source = flask.request.json if flask.request.json else flask.request.values
-
         input_name = "file"
         input_upload_path = input_name + "." + self._settings.global_get(["server", "uploads", "pathSuffix"])
         input_upload_file = input_name + ".name"
@@ -98,9 +96,9 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                 self._logger.exception(error_message)
                 return flask.make_response(error_message, 500)
         else:
-            return flask.make_response("File to save failed to save", 400)
+            return flask.make_response("No file given in upload.", 400)
 
-        return flask.make_response(NO_CONTENT)
+        return flask.jsonify(self.getImageList())
 
     # ~~ StartupPlugin mixin
 

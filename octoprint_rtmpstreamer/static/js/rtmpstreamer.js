@@ -44,9 +44,10 @@ $(function () {
 
 		self.onStartup = function() {
 			self.selectFilePath = $("#settings_plugin_rtmpstreamer_selectFilePath");
+			self.uploadButton = $("#rtmpstreamer_upload_button");
 
 			self.selectFilePath.fileupload({
-				dataType: "binary",
+				dataType: "json",
 				maxNumberOfFiles: 1,
 				autoUpload: false,
 				add: function(e, data) {
@@ -54,8 +55,34 @@ $(function () {
 						return false;
 					}
 
-					self.fileData = data;
 					self.imageFileName(data.files[0].name);
+					self.uploadButton.unbind("click");
+					self.uploadButton.bind("click", function () {
+						data.formData = {
+							upload_message: "uploading?"
+						};
+						data.submit();
+						return false;
+					});
+				},
+				done: function (e, data) {
+					var response = data.result;
+					self.uploadButton.unbind("click");
+					self.uploadImage(undefined);
+					self.settingsViewModel.settings.plugins.rtmpstreamer.overlay_file(data.files[0].name);
+					self.overlay_files(response);
+					$('#imageUploader').modal('hide');
+				},
+				fail: function (e, data) {
+					new PNotify({
+						title: gettext("Something went wrong"),
+						text: gettext("Please consult octoprint.log for details"),
+						type: "error",
+						hide: false
+					});
+
+					self.uploadButton.unbind("click");
+					self.imageFileName(undefined);
 				}
 			});
 		};
@@ -183,54 +210,6 @@ $(function () {
 			$('#imageUploader').modal('show');
 		};
 
-		self.startUploadFromFile = async function() {
-			if (!self.imageFileName()) {
-				alert = gettext("Image file is not specified");
-				return;
-			}
-
-			$('#imageUploader').modal('hide');
-
-			await self.fileData.submit();
-
-			$.ajax({
-				url: API_BASEURL + "plugin/rtmpstreamer",
-				type: "GET",
-				dataType: "json",
-				data: {
-					updateImages: true
-				},
-				contentType: "application/json; charset=UTF-8"
-			}).done(function(data) {
-				if (data) {
-					self.overlay_files(data);
-				}
-			});
-		};
-
-		self.startUploadFromURL = function() {
-			if (!self.imageFileURL()) {
-				alert = gettext("Image URL is not specified");
-				return;
-			}
-
-			$('#imageUploader').modal('hide');
-
-			$.ajax({
-				url: API_BASEURL + "plugin/rtmpstreamer",
-				type: "GET",
-				dataType: "json",
-				data: {
-					uploadImageURL: self.imageFileURL()
-				},
-				contentType: "application/json; charset=UTF-8"
-			}).done(function(data) {
-				if (data) {
-					self.overlay_files(data);
-				}
-			});
-		};
-
 		self.rmImage = function(file) {
 			showConfirmationDialog({
 				message: "This is not reversible. Delete '" + file + "'?",
@@ -252,6 +231,7 @@ $(function () {
 			}).done(function(data) {
 				if (data) {
 					self.overlay_files(data);
+					self.settingsViewModel.settings.plugins.rtmpstreamer.overlay_file(data[0]);
 				}
 			});
                 };

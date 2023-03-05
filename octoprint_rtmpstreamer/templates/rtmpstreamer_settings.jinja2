@@ -399,7 +399,6 @@
 
         <div class="modal-body">
             <div class="control-group">
-                <label class="control-label">{{ _('... from file') }}</label>
                 <div class="controls">
                     <div class="input-append">
                         <span class="btn input-group-btn fileinput-button">{{ _('Browse...') }}
@@ -408,19 +407,8 @@
                                    data-url="{{ url_for("plugin.rtmpstreamer.upload_file") }}"/>
                         </span>
                         <input class="input" type="text" data-bind="value: imageFileName" disabled/>
-                        <button class="btn btn-primary"
-                                data-bind="click: startUploadFromFile, enable: imageFileName, css: {disabled: !imageFileName()}">{{ _('Upload from File') }}</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label class="control-label">{{ _('... from URL') }}</label>
-                <div class="controls">
-                    <div class="input-append">
-                        <input class="input" type="text" data-bind="value: imageFileURL, valueUpdate: 'afterkeydown'">
-                        <button class="btn btn-primary"
-                                data-bind="click: startUploadFromURL, enable: imageFileURL, css: {disabled: !imageFileURL()}">{{ _('Upload from URL') }}</button>
+                        <button class="btn btn-primary" id="rtmpstreamer_upload_button"
+                                data-bind="click: function(){}, enable: imageFileName, css: {disabled: !imageFileName()}">{{ _('Upload from File') }}</button>
                     </div>
                 </div>
             </div>
