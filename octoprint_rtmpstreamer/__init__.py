@@ -17,7 +17,8 @@ from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
 import urllib
-import docker
+from docker import from_env as docker_from_env
+from docker.errors import ImageNotFound, APIError
 import shlex
 import shutil
 import subprocess
@@ -173,6 +174,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             use_docker=False,
             docker_image=self.docker_image_default,
             docker_container=self.docker_container_default,
+            docker_pull=False,
             ffmpeg_cmd=self.ffmpeg_cmd_default,
             frame_rate=self.frame_rate_default,
             stream_bitrate="400k",
@@ -190,6 +192,12 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
     def get_settings_restricted_paths(self):
         return dict(admin=[["stream_url"]])
+
+    def on_settings_save(self, data):
+        octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
+        if self._settings.get(["use_docker"]):
+            # If using docker, check image after settings update
+            self._get_image()
 
     # ~~ AssetPlugin mixin
 
@@ -211,9 +219,10 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
     # -- Utility Functions
 
     def _get_client(self):
-        self.client = docker.from_env()
+        self.client = docker_from_env()
         try:
             self.client.ping()
+            self._logger.debug("Received ping from Docker")
         except Exception as e:
             self._logger.error("Docker not responding: " + str(e))
             self.client = None
@@ -222,7 +231,15 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
         self._get_client()
         if self.client:
             try:
-                self.image = self.client.images.get(self._settings.get(["docker_image"]))
+                _docker_image = self._settings.get(["docker_image"])
+                self.image = self.client.images.get(_docker_image)
+            except ImageNotFound as e:
+                self._logger.warning("Docker image " + _docker_image + " not found")
+                if self._settings.get(["docker_pull"]):
+                    self._pull_image()
+            except APIError as e:
+                self._logger.error("Docker API error:")
+                self._logger.error(str(e))
             except Exception as e:
                 self._logger.error(str(e))
                 self._logger.error("Please read installation instructions!")
@@ -242,6 +259,19 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                 self.container = self.ffmpeg
             else:
                 self.container = self.ffmpeg = None
+
+    def _pull_image(self):
+        self._get_client()
+        if self.client:
+            _docker_image = self._settings.get(["docker_image"])
+            try:
+                self._logger.debug("Attempting to pull image " + _docker_image)
+                self.client.images.pull(_docker_image)
+                self._logger.info("Docker image " + _docker_image + " was pulled successfully")
+            except Exception as e:
+                self._logger.error("Unknown error: " + e)
+        else:
+            self._logger.error("Unable to connect to Docker")
 
     # ~~ SimpleApiPlugin
     def get_api_commands(self):
@@ -366,6 +396,10 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
                         ["docker_container"]) + "':\n" + "|  " + stream_cmd)
                     self._get_client()
                     # FIXME testing if this is required devices = ["/dev/vchiq"],
+                    # This would continue if _get_client() above does not return client
+                    if not self.client:
+                        return
+                    self._get_image()
                     self.container = self.client.containers.run(
                         self._settings.get(["docker_image"]),
                         command=stream_cmd,

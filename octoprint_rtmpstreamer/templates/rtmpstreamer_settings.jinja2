@@ -387,6 +387,15 @@
                         <span class="help-block">The name given to the running Docker container (default: {{ plugin_rtmpstreamer_docker_container_default | escape }}).</span>
                     </div>
                 </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <label class="checkbox">
+                            <input type="checkbox"
+                                data-bind="checked: settingsViewModel.settings.plugins.rtmpstreamer.docker_pull"> Pull image if not found on server
+                        </label>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
