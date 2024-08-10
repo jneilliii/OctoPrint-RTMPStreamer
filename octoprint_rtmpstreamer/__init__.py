@@ -333,11 +333,11 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             )
             filter_str = ""
             filters = []
-            if self._settings.global_get(["webcam", "flipH"]):
+            if self._settings.global_get_boolean(["webcam", "flipH"]) or self._settings.global_get_boolean(["plugins", "classicwebcam", "flipH"]):
                 filters.append("hflip")
-            if self._settings.global_get(["webcam", "flipV"]):
+            if self._settings.global_get_boolean(["webcam", "flipV"]) or self._settings.global_get_boolean(["plugins", "classicwebcam", "flipV"]):
                 filters.append("vflip")
-            if self._settings.global_get(["webcam", "rotate90"]):
+            if self._settings.global_get_boolean(["webcam", "rotate90"]) or self._settings.global_get_boolean(["plugins", "classicwebcam", "rotate90"]):
                 filters.append("transpose=cclock")
             if len(filters):
                 filter_str = "{},".format(",".join(filters))
