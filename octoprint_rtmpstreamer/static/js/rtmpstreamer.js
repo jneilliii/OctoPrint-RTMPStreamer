@@ -212,7 +212,9 @@ $(function () {
 
 		self.rmImage = function(file) {
 			showConfirmationDialog({
-				message: "This is not reversible. Delete '" + file + "'?",
+				message: _.sprintf(gettext("This is not reversible. Delete '%(file)s'?"), {
+					file: _.escape(file)
+				}),
 				onproceed: function () {
 					self.doRmImage(file);
 				}
