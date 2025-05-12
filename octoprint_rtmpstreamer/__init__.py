@@ -7,7 +7,6 @@ import octoprint.filemanager.storage
 from flask_babel import gettext
 from octoprint.access import ADMIN_GROUP
 from octoprint.access.permissions import Permissions
-from octoprint.server import user_permission
 import logging
 import os
 import io
@@ -16,7 +15,6 @@ import tempfile
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
-import urllib
 from docker import from_env as docker_from_env
 from docker.errors import ImageNotFound, APIError
 import shlex
@@ -26,7 +24,6 @@ import flask
 import re
 
 import octoprint.server.util.flask
-from octoprint.server import admin_permission, NO_CONTENT
 
 
 class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
@@ -316,11 +313,10 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
         if command == 'startStream':
             self._logger.info("Start stream command received.")
             self._start_stream()
-            return
-        if command == 'stopStream':
+        elif command == 'stopStream':
             self._logger.info("Stop stream command received.")
             self._stop_stream()
-        if command == 'checkStream':
+        elif command == 'checkStream':
             self._logger.info("Checking stream status.")
             self._check_stream()
 
