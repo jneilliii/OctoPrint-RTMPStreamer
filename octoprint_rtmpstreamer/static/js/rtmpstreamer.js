@@ -223,7 +223,7 @@ $(function () {
 
 		self.doRmImage = function(file) {
 			OctoPrint.post(
-				OctoPrint.getBlueprintUrl("rtmpstreamer") + "rtmpstreamer_delete",
+				OctoPrint.getBlueprintUrl("rtmpstreamer") + "delete_image",
 				{"file": file}
 			).done(function(data) {
 				if (data) {

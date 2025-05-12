@@ -75,14 +75,16 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
         self.overlay_image_default = "jneilliii.png"
         self.docker_image_default = "kolisko/rpi-ffmpeg:latest"
         self.docker_container_default = "RTMPStreamer"
+        
+        self.image_allowed_extensions = {'.png', '.jpg', '.jpeg'}
 
     # ~~ BluePrint API mixin
 
-    @octoprint.plugin.BlueprintPlugin.route("/rtmpstreamer_upload", methods=["POST"])
+    @octoprint.plugin.BlueprintPlugin.route("/upload_image", methods=["POST"])
     @octoprint.server.util.flask.restricted_access
     @Permissions.SETTINGS.require(403)
     @Permissions.PLUGIN_RTMPSTREAMER_CONTROL.require(403)
-    def upload_file(self):
+    def upload_image(self):
         input_name = "file"
         input_upload_path = input_name + "." + self._settings.global_get(["server", "uploads", "pathSuffix"])
         input_upload_file = input_name + ".name"
@@ -90,6 +92,10 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
         if input_upload_path in flask.request.values:
             upload_path = flask.request.values[input_upload_path]
             upload_file = os.path.basename(flask.request.values[input_upload_file])
+            
+            ext = os.path.splitext(upload_file)[1].lower()
+            if ext not in self.image_allowed_extensions:
+                return flask.make_response("Unsupported file type.", 400)
 
             try:
                 shutil.move(os.path.abspath(upload_path), os.path.join(self.get_plugin_data_folder(), upload_file))
@@ -102,15 +108,19 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
         return flask.jsonify(self.getImageList())
     
-    @octoprint.plugin.BlueprintPlugin.route("/rtmpstreamer_delete", methods=["POST"])
+    @octoprint.plugin.BlueprintPlugin.route("/delete_image", methods=["POST"])
     @octoprint.server.util.flask.restricted_access
     @Permissions.SETTINGS.require(403)
     @Permissions.PLUGIN_RTMPSTREAMER_CONTROL.require(403)
-    def delete_file(self):
+    def delete_image(self):
         input_name = "file"
 
         if input_name in flask.request.values:
             file = os.path.basename(flask.request.values[input_name])
+            
+            ext = os.path.splitext(file)[1].lower()
+            if ext not in self.image_allowed_extensions:
+                return flask.make_response("Unsupported file type.", 400)
 
             try:
                 os.remove(os.path.join(self.get_plugin_data_folder(), file))
