@@ -275,7 +275,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
     # ~~ SimpleApiPlugin
     def get_api_commands(self):
-        return dict(startStream=[], stopStream=[], checkStream=[], removeImage=[], updateImages=[], uploadImageURL=[])
+        return dict(startStream=[], stopStream=[], checkStream=[], removeImage=[], updateImages=[])
 
     def on_api_command(self, command, data):
         if not Permissions.PLUGIN_RTMPSTREAMER_CONTROL.can():
@@ -297,9 +297,6 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             self.removeImage(request.args.get("removeImage"))
             return flask.jsonify(self.getImageList())
         if request.args.get("updateImages"):
-            return flask.jsonify(self.getImageList())
-        if request.args.get("uploadImageURL"):
-            self.fetchImageURL(request.args.get("uploadImageURL"))
             return flask.jsonify(self.getImageList())
 
     # ~~ General Functions
@@ -645,16 +642,6 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
     def getImageList(self):
         return [f for f in os.listdir(self.get_plugin_data_folder()) if
                 os.path.isfile(os.path.join(self.get_plugin_data_folder(), f))]
-
-    def fetchImageURL(self, url):
-        try:
-            file = os.path.basename(url)
-            self._logger.info("Fetching {} and saving it to {}".format(url, file))
-            urllib.request.urlretrieve(url, os.path.join(self.get_plugin_data_folder(), file))
-        except Exception as e:
-            err = "{} fetching {}".format(e, url)
-            self._logger.error(err)
-            self._plugin_manager.send_plugin_message(self._identifier, dict(error=err))
 
     def removeImage(self, file):
         if os.path.exists(os.path.join(self.get_plugin_data_folder(), file)):
