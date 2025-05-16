@@ -212,7 +212,9 @@ $(function () {
 
 		self.rmImage = function(file) {
 			showConfirmationDialog({
-				message: "This is not reversible. Delete '" + file + "'?",
+				message: _.sprintf(gettext("This is not reversible. Delete '%(file)s'?"), {
+					file: _.escape(file)
+				}),
 				onproceed: function () {
 					self.doRmImage(file);
 				}
@@ -220,21 +222,16 @@ $(function () {
 		};
 
 		self.doRmImage = function(file) {
-			$.ajax({
-				url: API_BASEURL + "plugin/rtmpstreamer",
-				type: "GET",
-				dataType: "json",
-				data: {
-					removeImage: file
-				},
-				contentType: "application/json; charset=UTF-8"
-			}).done(function(data) {
+			OctoPrint.post(
+				OctoPrint.getBlueprintUrl("rtmpstreamer") + "delete_image",
+				{"file": file}
+			).done(function(data) {
 				if (data) {
 					self.overlay_files(data);
 					self.settingsViewModel.settings.plugins.rtmpstreamer.overlay_file(data[0]);
 				}
 			});
-                };
+        };
 
 		self.addInfo = function(data) {
 			self.selected_layout({

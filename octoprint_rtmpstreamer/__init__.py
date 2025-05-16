@@ -7,7 +7,6 @@ import octoprint.filemanager.storage
 from flask_babel import gettext
 from octoprint.access import ADMIN_GROUP
 from octoprint.access.permissions import Permissions
-from octoprint.server import user_permission
 import logging
 import os
 import io
@@ -16,7 +15,6 @@ import tempfile
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
-import urllib
 from docker import from_env as docker_from_env
 from docker.errors import ImageNotFound, APIError
 import shlex
@@ -26,7 +24,6 @@ import flask
 import re
 
 import octoprint.server.util.flask
-from octoprint.server import admin_permission, NO_CONTENT
 
 
 class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
@@ -75,29 +72,61 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
         self.overlay_image_default = "jneilliii.png"
         self.docker_image_default = "kolisko/rpi-ffmpeg:latest"
         self.docker_container_default = "RTMPStreamer"
+        
+        self.image_allowed_extensions = {'.png', '.jpg', '.jpeg'}
 
     # ~~ BluePrint API mixin
 
-    @octoprint.plugin.BlueprintPlugin.route("/rtmpstreamer_upload", methods=["POST"])
+    @octoprint.plugin.BlueprintPlugin.route("/upload_image", methods=["POST"])
     @octoprint.server.util.flask.restricted_access
+    @Permissions.SETTINGS.require(403)
     @Permissions.PLUGIN_RTMPSTREAMER_CONTROL.require(403)
-    def upload_file(self):
+    def upload_image(self):
         input_name = "file"
         input_upload_path = input_name + "." + self._settings.global_get(["server", "uploads", "pathSuffix"])
         input_upload_file = input_name + ".name"
 
         if input_upload_path in flask.request.values:
-            uploaded_file = flask.request.values[input_upload_path]
-            file = os.path.basename(flask.request.values[input_upload_file])
+            upload_path = flask.request.values[input_upload_path]
+            upload_file = os.path.basename(flask.request.values[input_upload_file])
+            
+            ext = os.path.splitext(upload_file)[1].lower()
+            if ext not in self.image_allowed_extensions:
+                return flask.make_response("Unsupported file type.", 400)
 
             try:
-                shutil.move(os.path.abspath(uploaded_file), os.path.join(self.get_plugin_data_folder(), file))
+                shutil.move(os.path.abspath(upload_path), os.path.join(self.get_plugin_data_folder(), upload_file))
             except:
                 error_message = "Error while copying the uploaded file"
                 self._logger.exception(error_message)
                 return flask.make_response(error_message, 500)
         else:
             return flask.make_response("No file given in upload.", 400)
+
+        return flask.jsonify(self.getImageList())
+    
+    @octoprint.plugin.BlueprintPlugin.route("/delete_image", methods=["POST"])
+    @octoprint.server.util.flask.restricted_access
+    @Permissions.SETTINGS.require(403)
+    @Permissions.PLUGIN_RTMPSTREAMER_CONTROL.require(403)
+    def delete_image(self):
+        input_name = "file"
+
+        if input_name in flask.request.values:
+            file = os.path.basename(flask.request.values[input_name])
+            
+            ext = os.path.splitext(file)[1].lower()
+            if ext not in self.image_allowed_extensions:
+                return flask.make_response("Unsupported file type.", 400)
+
+            try:
+                os.remove(os.path.join(self.get_plugin_data_folder(), file))
+            except:
+                error_message = "Error while deleting file"
+                self._logger.exception(error_message)
+                return flask.make_response(error_message, 500)
+        else:
+            return flask.make_response("No file name given.", 400)
 
         return flask.jsonify(self.getImageList())
 
@@ -275,7 +304,7 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
     # ~~ SimpleApiPlugin
     def get_api_commands(self):
-        return dict(startStream=[], stopStream=[], checkStream=[], removeImage=[], updateImages=[], uploadImageURL=[])
+        return dict(startStream=[], stopStream=[], checkStream=[], updateImages=[])
 
     def on_api_command(self, command, data):
         if not Permissions.PLUGIN_RTMPSTREAMER_CONTROL.can():
@@ -284,22 +313,15 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
         if command == 'startStream':
             self._logger.info("Start stream command received.")
             self._start_stream()
-            return
-        if command == 'stopStream':
+        elif command == 'stopStream':
             self._logger.info("Stop stream command received.")
             self._stop_stream()
-        if command == 'checkStream':
+        elif command == 'checkStream':
             self._logger.info("Checking stream status.")
             self._check_stream()
 
     def on_api_get(self, request):
-        if request.args.get("removeImage"):
-            self.removeImage(request.args.get("removeImage"))
-            return flask.jsonify(self.getImageList())
         if request.args.get("updateImages"):
-            return flask.jsonify(self.getImageList())
-        if request.args.get("uploadImageURL"):
-            self.fetchImageURL(request.args.get("uploadImageURL"))
             return flask.jsonify(self.getImageList())
 
     # ~~ General Functions
@@ -645,20 +667,6 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
     def getImageList(self):
         return [f for f in os.listdir(self.get_plugin_data_folder()) if
                 os.path.isfile(os.path.join(self.get_plugin_data_folder(), f))]
-
-    def fetchImageURL(self, url):
-        try:
-            file = os.path.basename(url)
-            self._logger.info("Fetching {} and saving it to {}".format(url, file))
-            urllib.request.urlretrieve(url, os.path.join(self.get_plugin_data_folder(), file))
-        except Exception as e:
-            err = "{} fetching {}".format(e, url)
-            self._logger.error(err)
-            self._plugin_manager.send_plugin_message(self._identifier, dict(error=err))
-
-    def removeImage(self, file):
-        if os.path.exists(os.path.join(self.get_plugin_data_folder(), file)):
-            os.remove(os.path.join(self.get_plugin_data_folder(), file));
 
 
 __plugin_name__ = "RTMP Streamer"
