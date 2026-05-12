@@ -309,6 +309,10 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             self._logger.error("Unable to connect to Docker")
 
     # ~~ SimpleApiPlugin
+    
+    def is_api_protected(self):
+        return True
+    
     def get_api_commands(self):
         return dict(startStream=[], stopStream=[], checkStream=[], updateImages=[])
 
