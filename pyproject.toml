@@ -1,0 +1,45 @@
+[build-system]
+requires = [
+    "setuptools>=68",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "RTMP-Streamer"
+version = "1.0.7"
+description = "A plugin to re-encode the mjpg stream to an rtmp server of your choice."
+authors = [
+    { name = "jneilliii", email = "jneilliii+octoprint@gmail.com" },
+]
+requires-python = ">=2.7,<4"
+dependencies = [
+    "docker==2.7.0",
+    "Pillow",
+]
+dynamic = [
+    "license",
+]
+
+[project.entry-points."octoprint.plugin"]
+rtmpstreamer = "octoprint_rtmpstreamer"
+
+[project.urls]
+Homepage = "https://github.com/jneilliii/OctoPrint-RTMPStreamer"
+
+[project.optional-dependencies]
+develop = [
+    "go-task-bin",
+]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = [
+    "octoprint_rtmpstreamer",
+    "octoprint_rtmpstreamer.*",
+]

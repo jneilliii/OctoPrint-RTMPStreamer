@@ -77,6 +77,9 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
     # ~~ BluePrint API mixin
 
+    def is_blueprint_csrf_protected(self):
+        return True
+
     @octoprint.plugin.BlueprintPlugin.route("/upload_image", methods=["POST"])
     @octoprint.server.util.flask.restricted_access
     @Permissions.SETTINGS.require(403)
@@ -160,6 +163,9 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             self._settings.set_boolean(["use_dynamic_overlay"], False)
 
     # ~~ TemplatePlugin mixin
+
+    def is_template_autoescaped(self):
+        return True
 
     def get_template_configs(self):
         return [dict(type="settings", custom_bindings=True)]
@@ -303,6 +309,10 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
             self._logger.error("Unable to connect to Docker")
 
     # ~~ SimpleApiPlugin
+    
+    def is_api_protected(self):
+        return True
+    
     def get_api_commands(self):
         return dict(startStream=[], stopStream=[], checkStream=[], updateImages=[])
 

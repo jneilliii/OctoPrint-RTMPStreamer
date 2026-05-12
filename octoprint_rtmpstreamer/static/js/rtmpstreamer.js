@@ -146,6 +146,7 @@ $(function () {
 				new PNotify({
 					title: 'RTMP Streamer Error',
 					text: data.error,
+					text_escape: true,
 					type: 'error',
 					hide: false,
 					buttons: {
@@ -159,6 +160,7 @@ $(function () {
 				new PNotify({
 					title: 'RTMP Streamer',
 					text: data.success,
+					text_escape: true,
 					type: 'success',
 					hide: true,
 					delay: 6000,
