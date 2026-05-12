@@ -164,6 +164,9 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
     # ~~ TemplatePlugin mixin
 
+    def is_template_autoescaped(self):
+        return True
+
     def get_template_configs(self):
         return [dict(type="settings", custom_bindings=True)]
 
