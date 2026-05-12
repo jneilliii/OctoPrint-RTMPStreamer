@@ -77,6 +77,9 @@ class rtmpstreamer(octoprint.plugin.BlueprintPlugin,
 
     # ~~ BluePrint API mixin
 
+    def is_blueprint_csrf_protected(self):
+        return True
+
     @octoprint.plugin.BlueprintPlugin.route("/upload_image", methods=["POST"])
     @octoprint.server.util.flask.restricted_access
     @Permissions.SETTINGS.require(403)
